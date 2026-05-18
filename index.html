@@ -2,1075 +2,1377 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DARKROOM · 修圖工作室</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Darkroom · 行動修圖</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,700;9..144,900&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0e0d0b;
-    --bg-2: #181612;
-    --panel: #1c1a16;
-    --panel-2: #25221d;
-    --line: #2e2a24;
-    --ink: #e8e2d4;
-    --ink-dim: #9a9285;
-    --ink-mute: #5d574d;
-    --accent: #d96b3a;
-    --accent-2: #e8b04a;
-    --red: #c84a3a;
-    --green: #7a8c4a;
-    --grain: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+    --bg: #000000;
+    --bg-2: #0d0d0d;
+    --panel: #1a1a1a;
+    --panel-2: #232323;
+    --line: #2a2a2a;
+    --ink: #ffffff;
+    --ink-dim: #a8a8a8;
+    --ink-mute: #6a6a6a;
+    --accent: #4a9eff;
+    --accent-2: #ffd54a;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
   }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
   html, body {
     height: 100%;
     background: var(--bg);
     color: var(--ink);
-    font-family: 'Noto Sans TC', 'JetBrains Mono', sans-serif;
+    font-family: 'Noto Sans TC', 'Inter', -apple-system, system-ui, sans-serif;
     overflow: hidden;
+    overscroll-behavior: none;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
   }
 
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image: var(--grain);
-    opacity: 0.04;
-    pointer-events: none;
-    mix-blend-mode: overlay;
-    z-index: 999;
+  .app {
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
   }
 
-  /* ===== TOP BAR ===== */
+  /* ============ TOP BAR ============ */
   .topbar {
+    height: 52px;
+    padding-top: var(--safe-top);
+    height: calc(52px + var(--safe-top));
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 14px 28px;
-    background: var(--bg-2);
+    padding-left: 16px;
+    padding-right: 16px;
+    background: var(--bg);
     border-bottom: 1px solid var(--line);
-    height: 64px;
-    position: relative;
+    flex-shrink: 0;
     z-index: 10;
   }
 
-  .brand {
+  .top-left, .top-right {
     display: flex;
-    align-items: baseline;
-    gap: 14px;
+    align-items: center;
+    gap: 6px;
   }
 
-  .brand-mark {
-    font-family: 'Fraunces', serif;
-    font-weight: 900;
-    font-size: 26px;
-    letter-spacing: -0.02em;
+  .icon-btn {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
     color: var(--ink);
+    cursor: pointer;
+    border-radius: 8px;
+    transition: background 0.15s;
   }
+  .icon-btn:active { background: var(--panel); }
+  .icon-btn svg { width: 22px; height: 22px; }
 
-  .brand-mark .dot {
+  .icon-btn.primary {
     color: var(--accent);
   }
 
-  .brand-sub {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.3em;
-    color: var(--ink-mute);
-    text-transform: uppercase;
-  }
-
-  .top-actions {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-  }
-
-  .btn {
-    background: transparent;
-    border: 1px solid var(--line);
-    color: var(--ink-dim);
-    padding: 9px 18px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-
-  .btn:hover {
-    color: var(--ink);
-    border-color: var(--ink-dim);
-  }
-
-  .btn-primary {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #1a1612;
-    font-weight: 700;
-  }
-
-  .btn-primary:hover {
-    background: var(--accent-2);
-    border-color: var(--accent-2);
-    color: #1a1612;
-  }
-
-  /* ===== MAIN LAYOUT ===== */
-  .workspace {
-    display: grid;
-    grid-template-columns: 260px 1fr 320px;
-    height: calc(100vh - 64px);
-  }
-
-  /* ===== LEFT PANEL : FILMS / FILTERS ===== */
-  .panel-left {
-    background: var(--panel);
-    border-right: 1px solid var(--line);
-    overflow-y: auto;
-  }
-
-  .panel-section {
-    border-bottom: 1px solid var(--line);
-    padding: 18px 20px;
-  }
-
-  .section-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 14px;
-  }
-
-  .section-title {
-    font-family: 'Fraunces', serif;
-    font-style: italic;
-    font-size: 15px;
-    font-weight: 500;
-    color: var(--ink);
-  }
-
-  .section-num {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    color: var(--ink-mute);
-    letter-spacing: 0.15em;
-  }
-
-  .preset-list {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .preset {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 12px;
-    background: transparent;
-    border: 1px solid transparent;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    text-align: left;
-    width: 100%;
-    color: var(--ink-dim);
-  }
-
-  .preset:hover {
-    background: var(--panel-2);
-    color: var(--ink);
-  }
-
-  .preset.active {
-    background: var(--panel-2);
-    border-color: var(--accent);
-    color: var(--ink);
-  }
-
-  .preset.active .preset-code {
-    color: var(--accent);
-  }
-
-  .preset-name {
+  .top-title {
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--ink);
   }
-
-  .preset-code {
+  .top-title .meta {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
+    font-size: 9px;
     color: var(--ink-mute);
-    letter-spacing: 0.1em;
+    display: block;
+    text-align: center;
+    margin-top: 1px;
+    letter-spacing: 0.15em;
   }
 
-  /* ===== CENTER : CANVAS ===== */
-  .canvas-area {
-    background:
-      radial-gradient(ellipse at center, #1f1c17 0%, #0a0908 100%);
+  /* ============ PHOTO AREA ============ */
+  .photo-stage {
+    flex: 1;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
     position: relative;
-    padding: 32px;
+    background: var(--bg);
+    overflow: hidden;
+    min-height: 0;
   }
 
-  .canvas-frame {
-    position: relative;
+  .photo-wrap {
     max-width: 100%;
     max-height: 100%;
-    box-shadow:
-      0 30px 60px rgba(0,0,0,0.5),
-      0 0 0 1px var(--line),
-      0 0 0 12px var(--panel),
-      0 0 0 13px var(--line);
+    position: relative;
+    display: none;
   }
 
   #photoCanvas {
     display: block;
-    max-width: 70vw;
-    max-height: 70vh;
+    max-width: 100vw;
+    max-height: 100%;
+    object-fit: contain;
   }
 
+  /* upload */
   .upload-zone {
-    border: 1px dashed var(--ink-mute);
-    padding: 80px 100px;
     text-align: center;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    background: rgba(0,0,0,0.2);
+    padding: 40px 30px;
   }
-
-  .upload-zone:hover {
-    border-color: var(--accent);
-    background: rgba(217,107,58,0.05);
-  }
-
-  .upload-icon {
-    font-family: 'Fraunces', serif;
-    font-size: 64px;
-    font-weight: 300;
-    color: var(--ink-mute);
-    margin-bottom: 12px;
-    line-height: 1;
-  }
-
-  .upload-text {
-    font-family: 'Fraunces', serif;
-    font-style: italic;
-    font-size: 20px;
-    color: var(--ink);
-    margin-bottom: 6px;
-  }
-
-  .upload-hint {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    color: var(--ink-mute);
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-  }
-
-  /* Canvas info overlay */
-  .canvas-meta {
-    position: absolute;
-    bottom: 16px;
-    left: 28px;
-    right: 28px;
-    display: flex;
-    justify-content: space-between;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    color: var(--ink-mute);
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    pointer-events: none;
-  }
-
-  .canvas-meta .filter-tag {
-    color: var(--accent);
-  }
-
-  /* ===== RIGHT PANEL : SLIDERS ===== */
-  .panel-right {
-    background: var(--panel);
-    border-left: 1px solid var(--line);
-    overflow-y: auto;
-  }
-
-  .slider-group {
-    padding: 16px 22px;
-    border-bottom: 1px solid var(--line);
-  }
-
-  .slider-row {
-    margin-bottom: 18px;
-  }
-
-  .slider-row:last-child { margin-bottom: 0; }
-
-  .slider-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 8px;
-  }
-
-  .slider-label {
-    font-size: 12px;
-    color: var(--ink-dim);
-    font-weight: 400;
-  }
-
-  .slider-value {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: var(--ink);
-    font-weight: 500;
-    min-width: 36px;
-    text-align: right;
-  }
-
-  .slider-value.modified {
-    color: var(--accent);
-  }
-
-  .slider-track {
-    position: relative;
-    height: 22px;
+  .upload-icon-circle {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    border: 1.5px dashed var(--ink-mute);
+    margin: 0 auto 20px;
     display: flex;
     align-items: center;
+    justify-content: center;
   }
-
-  input[type=range] {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 100%;
-    height: 1px;
-    background: var(--line);
-    outline: none;
-    margin: 0;
+  .upload-icon-circle svg {
+    width: 36px;
+    height: 36px;
+    stroke: var(--ink-dim);
   }
-
-  input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 12px;
-    height: 12px;
-    background: var(--ink);
-    cursor: pointer;
-    border-radius: 50%;
-    transition: all 0.15s ease;
+  .upload-text {
+    font-size: 17px;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: var(--ink);
   }
-
-  input[type=range]::-webkit-slider-thumb:hover {
+  .upload-hint {
+    font-size: 12px;
+    color: var(--ink-mute);
+    letter-spacing: 0.05em;
+  }
+  .upload-btn {
+    margin-top: 24px;
+    padding: 12px 32px;
     background: var(--accent);
-    transform: scale(1.3);
-  }
-
-  input[type=range]::-moz-range-thumb {
-    width: 12px;
-    height: 12px;
-    background: var(--ink);
-    cursor: pointer;
-    border-radius: 50%;
+    color: white;
     border: none;
+    border-radius: 24px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
   }
 
-  .center-mark {
+  #fileInput { display: none; }
+
+  /* compare button (long-press to show original) */
+  .compare-btn {
     position: absolute;
-    left: 50%;
-    top: 50%;
-    width: 1px;
-    height: 8px;
-    background: var(--ink-mute);
-    transform: translate(-50%, -50%);
-    pointer-events: none;
+    top: 12px;
+    right: 12px;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: var(--ink);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 5;
+  }
+  .compare-btn.visible { display: flex; }
+  .compare-btn svg { width: 16px; height: 16px; }
+  .compare-btn:active, .compare-btn.holding {
+    background: var(--accent);
   }
 
-  .reset-btn {
+  .filter-tag-overlay {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--accent-2);
+    display: none;
+  }
+  .filter-tag-overlay.visible { display: block; }
+
+  /* ============ BOTTOM PANEL ============ */
+  .bottom-panel {
+    background: var(--bg-2);
+    border-top: 1px solid var(--line);
+    flex-shrink: 0;
+    padding-bottom: var(--safe-bottom);
+    transition: transform 0.3s ease;
+  }
+
+  /* tab content */
+  .tab-content {
+    display: none;
+    min-height: 180px;
+    max-height: 50vh;
+    overflow: hidden;
+  }
+  .tab-content.active {
+    display: block;
+  }
+
+  /* === FILTERS TAB === */
+  .filter-section-tabs {
+    display: flex;
+    gap: 20px;
+    padding: 12px 16px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .filter-section-tab {
     background: none;
     border: none;
     color: var(--ink-mute);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 0;
     cursor: pointer;
-    letter-spacing: 0.1em;
-    padding: 4px 8px;
+    position: relative;
   }
-
-  .reset-btn:hover {
-    color: var(--accent);
+  .filter-section-tab.active {
+    color: var(--ink);
   }
-
-  /* Scrollbar */
-  ::-webkit-scrollbar { width: 8px; height: 8px; }
-  ::-webkit-scrollbar-track { background: var(--bg-2); }
-  ::-webkit-scrollbar-thumb { background: var(--line); }
-  ::-webkit-scrollbar-thumb:hover { background: var(--ink-mute); }
-
-  /* hidden file input */
-  #fileInput { display: none; }
-
-  /* loading state */
-  .processing {
+  .filter-section-tab.active::after {
+    content: '';
     position: absolute;
-    inset: 0;
-    background: rgba(0,0,0,0.6);
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--accent);
+  }
+
+  .filter-scroll {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 14px 16px 16px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+  .filter-scroll::-webkit-scrollbar { display: none; }
+
+  .filter-card {
+    flex-shrink: 0;
+    scroll-snap-align: start;
+    width: 76px;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .filter-thumb {
+    width: 76px;
+    height: 76px;
+    border-radius: 10px;
+    background: var(--panel);
+    border: 2px solid transparent;
+    overflow: hidden;
+    position: relative;
+    transition: border-color 0.2s;
+  }
+
+  .filter-card.active .filter-thumb {
+    border-color: var(--accent);
+  }
+
+  .filter-thumb canvas, .filter-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .filter-thumb-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
     display: flex;
     align-items: center;
     justify-content: center;
     font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--ink-mute);
+    letter-spacing: 0.1em;
+  }
+
+  .filter-name {
+    text-align: center;
     font-size: 11px;
-    letter-spacing: 0.3em;
+    margin-top: 6px;
+    color: var(--ink-dim);
+    line-height: 1.2;
+    height: 26px;
+    overflow: hidden;
+  }
+  .filter-card.active .filter-name {
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  /* === ADJUST TAB === */
+  .adjust-tab-container {
+    padding-bottom: 8px;
+  }
+
+  .adjust-category-bar {
+    display: flex;
+    gap: 0;
+    padding: 12px 16px 0;
+    border-bottom: 1px solid var(--line);
+    overflow-x: auto;
+  }
+  .adjust-category-bar::-webkit-scrollbar { display: none; }
+
+  .adjust-cat {
+    background: none;
+    border: none;
+    color: var(--ink-mute);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 14px;
+    cursor: pointer;
+    position: relative;
+    white-space: nowrap;
+  }
+  .adjust-cat.active { color: var(--ink); }
+  .adjust-cat.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 14px;
+    right: 14px;
+    height: 2px;
+    background: var(--accent);
+  }
+
+  .adjust-sliders {
+    display: none;
+    padding: 8px 0 12px;
+  }
+  .adjust-sliders.active { display: block; }
+
+  /* sub-tabs render as a horizontal scroll of "pill" sliders, classic Lightroom mobile style */
+  .pill-row {
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+    padding: 8px 16px 4px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .pill-row::-webkit-scrollbar { display: none; }
+
+  .pill-slider {
+    flex-shrink: 0;
+    width: 70px;
+    text-align: center;
+    cursor: pointer;
+    padding: 6px 0;
+    border-radius: 8px;
+  }
+  .pill-slider.selected {
+    background: var(--panel);
+  }
+  .pill-slider .pill-icon {
+    width: 36px;
+    height: 36px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink-dim);
+  }
+  .pill-slider.selected .pill-icon { color: var(--accent); }
+  .pill-slider.modified .pill-icon { color: var(--accent-2); }
+  .pill-slider .pill-icon svg { width: 22px; height: 22px; }
+  .pill-slider .pill-label {
+    font-size: 10.5px;
+    color: var(--ink-dim);
+    margin-top: 2px;
+  }
+  .pill-slider.selected .pill-label { color: var(--ink); }
+  .pill-slider .pill-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--ink-mute);
+    margin-top: 1px;
+    height: 11px;
+  }
+  .pill-slider.modified .pill-val { color: var(--accent-2); }
+
+  /* large slider for the currently-selected adjustment */
+  .big-slider-area {
+    padding: 14px 24px 12px;
+    border-top: 1px solid var(--line);
+    margin-top: 4px;
+  }
+
+  .big-slider-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  .big-slider-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink);
+  }
+  .big-slider-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
     color: var(--accent);
+    min-width: 40px;
+    text-align: right;
+  }
+
+  .slider-wrap {
+    position: relative;
+    height: 28px;
+    display: flex;
+    align-items: center;
+  }
+
+  input[type=range].big-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 2px;
+    background: var(--line);
+    outline: none;
+    margin: 0;
+    position: relative;
+    z-index: 2;
+  }
+  input[type=range].big-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    background: var(--ink);
+    cursor: pointer;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  }
+  input[type=range].big-slider::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    background: var(--ink);
+    cursor: pointer;
+    border-radius: 50%;
+    border: none;
+  }
+
+  .slider-center-tick {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 2px;
+    height: 10px;
+    background: var(--ink-mute);
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    border-radius: 2px;
+  }
+
+  /* ============ BOTTOM TAB BAR ============ */
+  .tabbar {
+    height: 60px;
+    background: var(--bg);
+    border-top: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding-bottom: var(--safe-bottom);
+    flex-shrink: 0;
+  }
+
+  .tab-btn {
+    background: none;
+    border: none;
+    color: var(--ink-mute);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    cursor: pointer;
+    padding: 6px 12px;
+    flex: 1;
+    min-width: 0;
+  }
+  .tab-btn svg { width: 22px; height: 22px; }
+  .tab-btn span {
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .tab-btn.active { color: var(--accent); }
+
+  /* ============ TOAST ============ */
+  .toast {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255,255,255,0.95);
+    color: #000;
+    padding: 10px 20px;
+    border-radius: 24px;
+    font-size: 13px;
+    font-weight: 500;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.25s, transform 0.25s;
+    z-index: 100;
   }
-
-  .processing.show {
+  .toast.show {
     opacity: 1;
+    transform: translateX(-50%) translateY(-6px);
   }
 
-  @media (max-width: 1100px) {
-    .workspace { grid-template-columns: 220px 1fr 280px; }
+  /* processing indicator */
+  .processing-dot {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    width: 8px;
+    height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.15s;
   }
+  .processing-dot.show {
+    opacity: 1;
+    animation: pulse 0.8s ease infinite;
+  }
+  @keyframes pulse {
+    50% { transform: scale(1.6); opacity: 0.4; }
+  }
+
+  /* ============ MODAL ============ */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 50;
+    display: none;
+    align-items: flex-end;
+  }
+  .modal-backdrop.show { display: flex; }
+  .modal-sheet {
+    width: 100%;
+    background: var(--panel);
+    border-radius: 16px 16px 0 0;
+    padding: 20px 20px calc(20px + var(--safe-bottom));
+    transform: translateY(100%);
+    transition: transform 0.25s ease;
+  }
+  .modal-backdrop.show .modal-sheet {
+    transform: translateY(0);
+  }
+  .modal-handle {
+    width: 36px;
+    height: 4px;
+    background: var(--ink-mute);
+    border-radius: 2px;
+    margin: 0 auto 16px;
+  }
+  .modal-title {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    text-align: center;
+  }
+  .modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .modal-btn {
+    padding: 14px;
+    background: var(--panel-2);
+    border: none;
+    color: var(--ink);
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+    padding-left: 20px;
+  }
+  .modal-btn.danger { color: #ff6b6b; }
+  .modal-btn:active { background: var(--line); }
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <div class="brand">
-    <div class="brand-mark">DARKROOM<span class="dot">.</span></div>
-    <div class="brand-sub">— 數位暗房 / EST. 2026</div>
-  </div>
-  <div class="top-actions">
-    <button class="btn" id="resetAllBtn">全部重置</button>
-    <button class="btn" id="loadBtn">載入照片</button>
-    <button class="btn btn-primary" id="downloadBtn">輸出 ↓</button>
-  </div>
-</div>
+<div class="app">
 
-<div class="workspace">
-
-  <!-- LEFT : Films & Filters -->
-  <aside class="panel-left">
-    <div class="panel-section">
-      <div class="section-head">
-        <div class="section-title">膠片風格</div>
-        <div class="section-num">FILM · 01</div>
-      </div>
-      <div class="preset-list" id="filmList">
-        <button class="preset active" data-filter="none">
-          <span class="preset-name">原始</span>
-          <span class="preset-code">ORIG</span>
-        </button>
-        <button class="preset" data-filter="kodak-portra">
-          <span class="preset-name">Kodak Portra 400</span>
-          <span class="preset-code">KP400</span>
-        </button>
-        <button class="preset" data-filter="kodak-gold">
-          <span class="preset-name">Kodak Gold 200</span>
-          <span class="preset-code">KG200</span>
-        </button>
-        <button class="preset" data-filter="fuji-superia">
-          <span class="preset-name">Fuji Superia</span>
-          <span class="preset-code">FS400</span>
-        </button>
-        <button class="preset" data-filter="fuji-velvia">
-          <span class="preset-name">Fuji Velvia 50</span>
-          <span class="preset-code">FV050</span>
-        </button>
-        <button class="preset" data-filter="cinestill">
-          <span class="preset-name">CineStill 800T</span>
-          <span class="preset-code">CS800</span>
-        </button>
-        <button class="preset" data-filter="ilford">
-          <span class="preset-name">Ilford HP5 黑白</span>
-          <span class="preset-code">IL-BW</span>
-        </button>
-        <button class="preset" data-filter="polaroid">
-          <span class="preset-name">Polaroid 即時</span>
-          <span class="preset-code">PLRD</span>
-        </button>
-      </div>
+  <!-- ============ TOP BAR ============ -->
+  <header class="topbar">
+    <div class="top-left">
+      <button class="icon-btn" id="moreBtn" aria-label="更多">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+      </button>
     </div>
-
-    <div class="panel-section">
-      <div class="section-head">
-        <div class="section-title">流行濾鏡</div>
-        <div class="section-num">TREND · 02</div>
-      </div>
-      <div class="preset-list" id="trendList">
-        <button class="preset" data-filter="moody-teal">
-          <span class="preset-name">青橘電影感</span>
-          <span class="preset-code">TEAL</span>
-        </button>
-        <button class="preset" data-filter="warm-cream">
-          <span class="preset-name">奶油暖調</span>
-          <span class="preset-code">CREAM</span>
-        </button>
-        <button class="preset" data-filter="cold-blue">
-          <span class="preset-name">冷藍極簡</span>
-          <span class="preset-code">COLD</span>
-        </button>
-        <button class="preset" data-filter="vintage-fade">
-          <span class="preset-name">復古褪色</span>
-          <span class="preset-code">FADE</span>
-        </button>
-        <button class="preset" data-filter="japan-tone">
-          <span class="preset-name">日系清新</span>
-          <span class="preset-code">JPN</span>
-        </button>
-        <button class="preset" data-filter="korean-soft">
-          <span class="preset-name">韓系柔光</span>
-          <span class="preset-code">KOR</span>
-        </button>
-        <button class="preset" data-filter="dark-mood">
-          <span class="preset-name">暗調氛圍</span>
-          <span class="preset-code">DARK</span>
-        </button>
-        <button class="preset" data-filter="sunset-glow">
-          <span class="preset-name">夕陽金光</span>
-          <span class="preset-code">SUN</span>
-        </button>
-      </div>
+    <div class="top-title">
+      DARKROOM
+      <span class="meta" id="topMeta">未載入照片</span>
     </div>
-  </aside>
-
-  <!-- CENTER : Canvas -->
-  <main class="canvas-area" id="canvasArea">
-    <div class="canvas-frame" id="canvasFrame" style="display:none;">
-      <canvas id="photoCanvas"></canvas>
-      <div class="processing" id="processing">處理中 · PROCESSING</div>
+    <div class="top-right">
+      <button class="icon-btn" id="resetBtn" aria-label="重置">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+      </button>
+      <button class="icon-btn primary" id="shareBtn" aria-label="輸出">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      </button>
     </div>
+  </header>
+
+  <!-- ============ PHOTO STAGE ============ -->
+  <main class="photo-stage" id="photoStage">
+
     <div class="upload-zone" id="uploadZone">
-      <div class="upload-icon">+</div>
-      <div class="upload-text">拖曳照片至此</div>
-      <div class="upload-hint">OR CLICK TO BROWSE · JPG / PNG</div>
+      <div class="upload-icon-circle">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>
+      </div>
+      <div class="upload-text">點擊載入照片</div>
+      <div class="upload-hint">JPG / PNG / HEIC</div>
+      <button class="upload-btn" id="uploadBtnMain">選擇照片</button>
     </div>
+
+    <div class="photo-wrap" id="photoWrap">
+      <canvas id="photoCanvas"></canvas>
+      <div class="filter-tag-overlay" id="filterTag">FILTER: NONE</div>
+      <button class="compare-btn" id="compareBtn" aria-label="長按對比原圖">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 2v20"/><path d="M2 12h20"/></svg>
+      </button>
+      <div class="processing-dot" id="procDot"></div>
+    </div>
+
     <input type="file" id="fileInput" accept="image/*">
-    <div class="canvas-meta" id="canvasMeta" style="display:none;">
-      <span><span id="metaSize">—</span></span>
-      <span class="filter-tag" id="metaFilter">FILTER: NONE</span>
-    </div>
   </main>
 
-  <!-- RIGHT : Adjustments -->
-  <aside class="panel-right">
-    <div class="slider-group">
-      <div class="section-head" style="margin-bottom:16px;">
-        <div class="section-title">基本調整</div>
-        <div class="section-num">ADJ · 03</div>
+  <!-- ============ BOTTOM PANEL ============ -->
+  <section class="bottom-panel" id="bottomPanel">
+
+    <!-- ===== FILTERS TAB ===== -->
+    <div class="tab-content active" id="tab-filters">
+      <div class="filter-section-tabs">
+        <button class="filter-section-tab active" data-fsection="film">膠片</button>
+        <button class="filter-section-tab" data-fsection="trend">流行</button>
       </div>
 
-      <div class="slider-row">
-        <div class="slider-head">
-          <span class="slider-label">亮度 Brightness</span>
-          <span class="slider-value" data-for="brightness">0</span>
-        </div>
-        <div class="slider-track">
-          <span class="center-mark"></span>
-          <input type="range" id="brightness" min="-100" max="100" value="0" data-default="0">
+      <div class="filter-scroll" id="filterScrollFilm">
+        <!-- generated by JS -->
+      </div>
+      <div class="filter-scroll" id="filterScrollTrend" style="display:none;">
+        <!-- generated by JS -->
+      </div>
+    </div>
+
+    <!-- ===== ADJUST TAB ===== -->
+    <div class="tab-content" id="tab-adjust">
+      <div class="adjust-category-bar">
+        <button class="adjust-cat active" data-cat="light">光線</button>
+        <button class="adjust-cat" data-cat="color">色彩</button>
+        <button class="adjust-cat" data-cat="effects">效果</button>
+        <button class="adjust-cat" data-cat="detail">細節</button>
+      </div>
+
+      <!-- Light -->
+      <div class="adjust-sliders active" data-cat="light">
+        <div class="pill-row">
+          <div class="pill-slider selected" data-slider="exposure">
+            <div class="pill-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.9" y1="4.9" x2="6.8" y2="6.8"/><line x1="17.2" y1="17.2" x2="19.1" y2="19.1"/><line x1="4.9" y1="19.1" x2="6.8" y2="17.2"/><line x1="17.2" y1="6.8" x2="19.1" y2="4.9"/></svg></div>
+            <div class="pill-label">曝光</div>
+            <div class="pill-val"></div>
+          </div>
+          <div class="pill-slider" data-slider="brightness">
+            <div class="pill-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="3" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="21"/><line x1="3" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="21" y2="12"/></svg></div>
+            <div class="pill-label">亮度</div>
+            <div class="pill-val"></div>
+          </div>
+          <div class="pill-slider" data-slider="contrast">
+            <div class="pill-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 3v18a9 9 0 0 0 0-18z" fill="currentColor"/></svg></div>
+            <div class="pill-label">對比</div>
+            <div class="pill-val"></div>
+          </div>
+          <div class="pill-slider" data-slider="highlights">
+            <div class="pill-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 2v4"/><path d="M5 5l2.5 2.5"/><path d="M2 12h4"/><path d="M19 5l-2.5 2.5"/><path d="M9 18h6"/><path d="M10 21h4"/><circle cx="12" cy="13" r="3"/></svg></div>
+            <div class="pill-label">高光</div>
+            <div class="pill-val"></div>
+          </div>
+          <div class="pill-slider" data-slider="shadows">
+            <div class="pill-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 21h6"/><path d="M10 18h4"/><circle cx="12" cy="11" r="4"/></svg></div>
+            <div class="pill-label">陰影</div>
+            <div class="pill-val"></div>
+          </div>
         </div>
       </div>
 
-      <div class="slider-row">
-        <div class="slider-head">
-          <span class="slider-label">對比 Contrast</span>
-          <span class="slider-value" data-for="contrast">0</span>
-        </div>
-        <div class="slider-track">
-          <span class="center-mark"></span>
-          <input type="range" id="contrast" min="-100" max="100" value="0" data-default="0">
+      <!-- Color -->
+      <div class="adjust-sliders" data-cat="color">
+        <div class="pill-row">
+          <div class="pill-slider selected" data-slider="temperature">
+            <div class="pill-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg></div>
+            <div class="pill-label">色溫</div>
+            <div class="pill-val"></div>
+          </div>
+          <div class="pill-slider" data-slider="tint">
+            <div class="pill-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="10.5" r="2.5"/><circle cx="8.5" cy="7.5" r="2.5"/><circle cx="6.5" cy="12.5" r="2.5"/><path d="M12 2A10 10 0 0 0 2 12c0 5.52 4.48 10 10 10a2 2 0 0 0 2-2v-2a2 2 0 0 1 2-2h2a4 4 0 0 0 4-4 10 10 0 0 0-10-10z"/></svg></div>
+            <div class="pill-label">色調</div>
+            <div class="pill-val"></div>
+          </div>
+          <div class="pill-slider" data-slider="saturation">
+            <div class="pill-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg></div>
+            <div class="pill-label">飽和</div>
+            <div class="pill-val"></div>
+          </div>
         </div>
       </div>
 
-      <div class="slider-row">
-        <div class="slider-head">
-          <span class="slider-label">飽和度 Saturation</span>
-          <span class="slider-value" data-for="saturation">0</span>
-        </div>
-        <div class="slider-track">
-          <span class="center-mark"></span>
-          <input type="range" id="saturation" min="-100" max="100" value="0" data-default="0">
+      <!-- Effects -->
+      <div class="adjust-sliders" data-cat="effects">
+        <div class="pill-row">
+          <div class="pill-slider selected" data-slider="grain">
+            <div class="pill-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="6" r="1"/><circle cx="12" cy="6" r="1"/><circle cx="18" cy="6" r="1"/><circle cx="6" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="18" cy="12" r="1"/><circle cx="6" cy="18" r="1"/><circle cx="12" cy="18" r="1"/><circle cx="18" cy="18" r="1"/></svg></div>
+            <div class="pill-label">顆粒</div>
+            <div class="pill-val"></div>
+          </div>
+          <div class="pill-slider" data-slider="vignette">
+            <div class="pill-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5" fill="currentColor" fill-opacity="0.3"/></svg></div>
+            <div class="pill-label">暈影</div>
+            <div class="pill-val"></div>
+          </div>
         </div>
       </div>
 
-      <div class="slider-row">
-        <div class="slider-head">
-          <span class="slider-label">曝光 Exposure</span>
-          <span class="slider-value" data-for="exposure">0</span>
+      <!-- Detail -->
+      <div class="adjust-sliders" data-cat="detail">
+        <div class="pill-row">
+          <div class="pill-slider selected" data-slider="sharpen">
+            <div class="pill-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 19 21 12 17 5 21 12 2"/></svg></div>
+            <div class="pill-label">銳化</div>
+            <div class="pill-val"></div>
+          </div>
+          <div class="pill-slider" data-slider="blur">
+            <div class="pill-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4" fill="currentColor" fill-opacity="0.3"/><circle cx="12" cy="12" r="8" stroke-dasharray="2 2"/></svg></div>
+            <div class="pill-label">模糊</div>
+            <div class="pill-val"></div>
+          </div>
         </div>
-        <div class="slider-track">
-          <span class="center-mark"></span>
-          <input type="range" id="exposure" min="-100" max="100" value="0" data-default="0">
+      </div>
+
+      <div class="big-slider-area">
+        <div class="big-slider-head">
+          <span class="big-slider-title" id="bigSliderTitle">曝光</span>
+          <span class="big-slider-value" id="bigSliderValue">0</span>
+        </div>
+        <div class="slider-wrap" id="bigSliderWrap">
+          <span class="slider-center-tick"></span>
+          <input type="range" class="big-slider" id="bigSlider" min="-100" max="100" value="0">
         </div>
       </div>
     </div>
 
-    <div class="slider-group">
-      <div class="section-head" style="margin-bottom:16px;">
-        <div class="section-title">色彩控制</div>
-        <div class="section-num">COLOR · 04</div>
-      </div>
+  </section>
 
-      <div class="slider-row">
-        <div class="slider-head">
-          <span class="slider-label">色溫 Temperature</span>
-          <span class="slider-value" data-for="temperature">0</span>
-        </div>
-        <div class="slider-track">
-          <span class="center-mark"></span>
-          <input type="range" id="temperature" min="-100" max="100" value="0" data-default="0">
-        </div>
-      </div>
+  <!-- ============ BOTTOM TAB BAR ============ -->
+  <nav class="tabbar">
+    <button class="tab-btn active" data-tab="filters">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3.6 9h16.8M3.6 15h16.8M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
+      <span>濾鏡</span>
+    </button>
+    <button class="tab-btn" data-tab="adjust">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="9" cy="6" r="2" fill="currentColor"/><circle cx="15" cy="12" r="2" fill="currentColor"/><circle cx="7" cy="18" r="2" fill="currentColor"/></svg>
+      <span>調整</span>
+    </button>
+  </nav>
 
-      <div class="slider-row">
-        <div class="slider-head">
-          <span class="slider-label">色調 Tint</span>
-          <span class="slider-value" data-for="tint">0</span>
-        </div>
-        <div class="slider-track">
-          <span class="center-mark"></span>
-          <input type="range" id="tint" min="-100" max="100" value="0" data-default="0">
-        </div>
-      </div>
+</div>
 
-      <div class="slider-row">
-        <div class="slider-head">
-          <span class="slider-label">陰影 Shadows</span>
-          <span class="slider-value" data-for="shadows">0</span>
-        </div>
-        <div class="slider-track">
-          <span class="center-mark"></span>
-          <input type="range" id="shadows" min="-100" max="100" value="0" data-default="0">
-        </div>
-      </div>
+<!-- toast -->
+<div class="toast" id="toast">已重置</div>
 
-      <div class="slider-row">
-        <div class="slider-head">
-          <span class="slider-label">高光 Highlights</span>
-          <span class="slider-value" data-for="highlights">0</span>
-        </div>
-        <div class="slider-track">
-          <span class="center-mark"></span>
-          <input type="range" id="highlights" min="-100" max="100" value="0" data-default="0">
-        </div>
-      </div>
+<!-- modal -->
+<div class="modal-backdrop" id="modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">選項</div>
+    <div class="modal-actions">
+      <button class="modal-btn" id="modalLoad">載入新照片</button>
+      <button class="modal-btn" id="modalReset">重置所有調整</button>
+      <button class="modal-btn" id="modalClose">取消</button>
     </div>
-
-    <div class="slider-group">
-      <div class="section-head" style="margin-bottom:16px;">
-        <div class="section-title">質感效果</div>
-        <div class="section-num">FX · 05</div>
-      </div>
-
-      <div class="slider-row">
-        <div class="slider-head">
-          <span class="slider-label">顆粒 Grain</span>
-          <span class="slider-value" data-for="grain">0</span>
-        </div>
-        <div class="slider-track">
-          <input type="range" id="grain" min="0" max="100" value="0" data-default="0">
-        </div>
-      </div>
-
-      <div class="slider-row">
-        <div class="slider-head">
-          <span class="slider-label">暈影 Vignette</span>
-          <span class="slider-value" data-for="vignette">0</span>
-        </div>
-        <div class="slider-track">
-          <input type="range" id="vignette" min="0" max="100" value="0" data-default="0">
-        </div>
-      </div>
-
-      <div class="slider-row">
-        <div class="slider-head">
-          <span class="slider-label">銳化 Sharpen</span>
-          <span class="slider-value" data-for="sharpen">0</span>
-        </div>
-        <div class="slider-track">
-          <input type="range" id="sharpen" min="0" max="100" value="0" data-default="0">
-        </div>
-      </div>
-
-      <div class="slider-row">
-        <div class="slider-head">
-          <span class="slider-label">模糊 Blur</span>
-          <span class="slider-value" data-for="blur">0</span>
-        </div>
-        <div class="slider-track">
-          <input type="range" id="blur" min="0" max="100" value="0" data-default="0">
-        </div>
-      </div>
-    </div>
-  </aside>
+  </div>
 </div>
 
 <script>
-  // ============ STATE ============
-  const state = {
-    image: null,
-    originalImageData: null,
-    activeFilter: 'none',
-    activeFilterName: 'NONE',
-    adjustments: {
-      brightness: 0, contrast: 0, saturation: 0, exposure: 0,
-      temperature: 0, tint: 0, shadows: 0, highlights: 0,
-      grain: 0, vignette: 0, sharpen: 0, blur: 0
-    }
-  };
-
-  // ============ FILTER PRESETS ============
-  // Each preset: returns adjustments applied AFTER user sliders, OR base adjustments
-  // We model filters as additional channel curves & color shifts via overlay
-  const filterPresets = {
-    'none': { r:[0,0,0], g:[0,0,0], b:[0,0,0], curve: 'linear', extras: {} },
-
-    // 膠片
-    'kodak-portra':  { r:[8,3,-4],  g:[2,4,-2],  b:[-6,-3,4],  curve:'film',     extras:{warmth:8,  fade:6, saturation:-5} },
-    'kodak-gold':    { r:[14,8,-2], g:[6,6,-1],  b:[-12,-6,2], curve:'film',     extras:{warmth:18, fade:4, saturation:8}  },
-    'fuji-superia':  { r:[-3,2,4],  g:[4,6,2],   b:[8,2,-3],   curve:'film',     extras:{warmth:-5, fade:5, saturation:5}  },
-    'fuji-velvia':   { r:[10,2,-4], g:[6,8,-2],  b:[2,-2,2],   curve:'punchy',   extras:{warmth:4,  fade:-3, saturation:25} },
-    'cinestill':     { r:[20,12,2], g:[2,6,-2],  b:[-8,-4,8],  curve:'punchy',   extras:{warmth:14, fade:8, halation:18}    },
-    'ilford':        { r:[0,0,0],   g:[0,0,0],   b:[0,0,0],    curve:'bw',       extras:{contrast:10, fade:3}              },
-    'polaroid':      { r:[12,6,-6], g:[8,4,-4],  b:[-4,-2,8],  curve:'fade',     extras:{warmth:10, fade:18, saturation:-8} },
-
-    // 流行濾鏡
-    'moody-teal':    { r:[6,2,-12], g:[-2,2,2],  b:[-8,-4,14], curve:'cinema',   extras:{warmth:-2, fade:6, saturation:-5} },
-    'warm-cream':    { r:[14,10,-2],g:[8,8,-2],  b:[-10,-4,4], curve:'fade',     extras:{warmth:20, fade:12, saturation:-10}},
-    'cold-blue':     { r:[-10,-6,2],g:[-4,-2,4], b:[10,8,-2],  curve:'linear',   extras:{warmth:-22,fade:4, saturation:-12}},
-    'vintage-fade':  { r:[8,4,-4],  g:[6,4,-4],  b:[2,-2,4],   curve:'fade',     extras:{warmth:6,  fade:25, saturation:-20}},
-    'japan-tone':    { r:[6,4,-2],  g:[6,8,-2],  b:[4,2,2],    curve:'soft',     extras:{warmth:4,  fade:14, saturation:-8} },
-    'korean-soft':   { r:[10,8,-2], g:[8,8,-2],  b:[6,4,2],    curve:'soft',     extras:{warmth:8,  fade:20, saturation:-15}},
-    'dark-mood':     { r:[-2,-4,2], g:[-4,-6,2], b:[-2,-4,4],  curve:'cinema',   extras:{warmth:-4, fade:-2, saturation:-10, exposure:-12}},
-    'sunset-glow':   { r:[22,14,-2],g:[10,8,-2], b:[-18,-10,4],curve:'punchy',   extras:{warmth:28, fade:5, saturation:12}  }
-  };
-
-  const filterDisplayNames = {
-    'none': 'NONE',
-    'kodak-portra': 'KODAK PORTRA 400',
-    'kodak-gold': 'KODAK GOLD 200',
-    'fuji-superia': 'FUJI SUPERIA 400',
-    'fuji-velvia': 'FUJI VELVIA 50',
-    'cinestill': 'CINESTILL 800T',
-    'ilford': 'ILFORD HP5 B&W',
-    'polaroid': 'POLAROID INSTANT',
-    'moody-teal': 'MOODY TEAL & ORANGE',
-    'warm-cream': 'WARM CREAM',
-    'cold-blue': 'COLD MINIMAL BLUE',
-    'vintage-fade': 'VINTAGE FADE',
-    'japan-tone': 'JAPANESE TONE',
-    'korean-soft': 'KOREAN SOFT',
-    'dark-mood': 'DARK MOODY',
-    'sunset-glow': 'SUNSET GOLD'
-  };
-
-  // ============ DOM ============
-  const canvas = document.getElementById('photoCanvas');
-  const ctx = canvas.getContext('2d', { willReadFrequently: true });
-  const fileInput = document.getElementById('fileInput');
-  const uploadZone = document.getElementById('uploadZone');
-  const canvasFrame = document.getElementById('canvasFrame');
-  const canvasArea = document.getElementById('canvasArea');
-  const canvasMeta = document.getElementById('canvasMeta');
-  const metaSize = document.getElementById('metaSize');
-  const metaFilter = document.getElementById('metaFilter');
-  const processing = document.getElementById('processing');
-
-  // ============ FILE LOAD ============
-  uploadZone.addEventListener('click', () => fileInput.click());
-  document.getElementById('loadBtn').addEventListener('click', () => fileInput.click());
-
-  uploadZone.addEventListener('dragover', e => {
-    e.preventDefault();
-    uploadZone.style.borderColor = 'var(--accent)';
-  });
-  uploadZone.addEventListener('dragleave', () => {
-    uploadZone.style.borderColor = '';
-  });
-  uploadZone.addEventListener('drop', e => {
-    e.preventDefault();
-    uploadZone.style.borderColor = '';
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) loadImage(file);
-  });
-
-  fileInput.addEventListener('change', e => {
-    const file = e.target.files[0];
-    if (file) loadImage(file);
-  });
-
-  function loadImage(file) {
-    const reader = new FileReader();
-    reader.onload = ev => {
-      const img = new Image();
-      img.onload = () => {
-        // 限制最大邊長以保持效能
-        const maxSide = 1600;
-        let w = img.width, h = img.height;
-        if (w > maxSide || h > maxSide) {
-          const s = maxSide / Math.max(w, h);
-          w = Math.round(w * s);
-          h = Math.round(h * s);
-        }
-        canvas.width = w;
-        canvas.height = h;
-        ctx.drawImage(img, 0, 0, w, h);
-        state.image = img;
-        state.originalImageData = ctx.getImageData(0, 0, w, h);
-        uploadZone.style.display = 'none';
-        canvasFrame.style.display = 'block';
-        canvasMeta.style.display = 'flex';
-        metaSize.textContent = `${img.width} × ${img.height} PX`;
-        applyAll();
-      };
-      img.src = ev.target.result;
-    };
-    reader.readAsDataURL(file);
+// ============================================================
+// STATE
+// ============================================================
+const state = {
+  image: null,
+  originalImageData: null,
+  thumbImageData: null,         // 用於濾鏡縮圖預覽
+  activeFilter: 'none',
+  activeFilterSection: 'film',
+  activeAdjustCat: 'light',
+  selectedSlider: 'exposure',
+  showOriginal: false,
+  adjustments: {
+    brightness: 0, contrast: 0, saturation: 0, exposure: 0,
+    temperature: 0, tint: 0, shadows: 0, highlights: 0,
+    grain: 0, vignette: 0, sharpen: 0, blur: 0
   }
+};
 
-  // ============ SLIDERS ============
-  const sliders = document.querySelectorAll('input[type=range]');
-  sliders.forEach(slider => {
-    const valueEl = document.querySelector(`.slider-value[data-for="${slider.id}"]`);
-    let debounce;
-    slider.addEventListener('input', () => {
-      const v = parseInt(slider.value);
-      state.adjustments[slider.id] = v;
-      valueEl.textContent = v > 0 ? `+${v}` : `${v}`;
-      valueEl.classList.toggle('modified', v !== parseInt(slider.dataset.default));
-      clearTimeout(debounce);
-      debounce = setTimeout(applyAll, 16);
-    });
-  });
+// ============================================================
+// FILTER PRESETS
+// ============================================================
+const filterPresets = {
+  'none': { r:[0,0,0], g:[0,0,0], b:[0,0,0], curve: 'linear', extras: {} },
+  'kodak-portra':  { r:[8,3,-4],  g:[2,4,-2],  b:[-6,-3,4],  curve:'film',   extras:{warmth:8, fade:6, saturation:-5} },
+  'kodak-gold':    { r:[14,8,-2], g:[6,6,-1],  b:[-12,-6,2], curve:'film',   extras:{warmth:18,fade:4, saturation:8} },
+  'fuji-superia':  { r:[-3,2,4],  g:[4,6,2],   b:[8,2,-3],   curve:'film',   extras:{warmth:-5,fade:5, saturation:5} },
+  'fuji-velvia':   { r:[10,2,-4], g:[6,8,-2],  b:[2,-2,2],   curve:'punchy', extras:{warmth:4, fade:-3,saturation:25} },
+  'cinestill':     { r:[20,12,2], g:[2,6,-2],  b:[-8,-4,8],  curve:'punchy', extras:{warmth:14,fade:8, halation:18} },
+  'ilford':        { r:[0,0,0],   g:[0,0,0],   b:[0,0,0],    curve:'bw',     extras:{contrast:10,fade:3} },
+  'polaroid':      { r:[12,6,-6], g:[8,4,-4],  b:[-4,-2,8],  curve:'fade',   extras:{warmth:10,fade:18,saturation:-8} },
+  'moody-teal':    { r:[6,2,-12], g:[-2,2,2],  b:[-8,-4,14], curve:'cinema', extras:{warmth:-2,fade:6, saturation:-5} },
+  'warm-cream':    { r:[14,10,-2],g:[8,8,-2],  b:[-10,-4,4], curve:'fade',   extras:{warmth:20,fade:12,saturation:-10} },
+  'cold-blue':     { r:[-10,-6,2],g:[-4,-2,4], b:[10,8,-2],  curve:'linear', extras:{warmth:-22,fade:4,saturation:-12} },
+  'vintage-fade':  { r:[8,4,-4],  g:[6,4,-4],  b:[2,-2,4],   curve:'fade',   extras:{warmth:6, fade:25,saturation:-20} },
+  'japan-tone':    { r:[6,4,-2],  g:[6,8,-2],  b:[4,2,2],    curve:'soft',   extras:{warmth:4, fade:14,saturation:-8} },
+  'korean-soft':   { r:[10,8,-2], g:[8,8,-2],  b:[6,4,2],    curve:'soft',   extras:{warmth:8, fade:20,saturation:-15} },
+  'dark-mood':     { r:[-2,-4,2], g:[-4,-6,2], b:[-2,-4,4],  curve:'cinema', extras:{warmth:-4,fade:-2,saturation:-10,exposure:-12} },
+  'sunset-glow':   { r:[22,14,-2],g:[10,8,-2], b:[-18,-10,4],curve:'punchy', extras:{warmth:28,fade:5, saturation:12} }
+};
 
-  // ============ PRESET BUTTONS ============
-  document.querySelectorAll('.preset').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.preset').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      state.activeFilter = btn.dataset.filter;
-      state.activeFilterName = filterDisplayNames[state.activeFilter] || 'CUSTOM';
-      metaFilter.textContent = `FILTER: ${state.activeFilterName}`;
+const filterMeta = {
+  film: [
+    { id:'none', name:'原始', code:'ORIG' },
+    { id:'kodak-portra', name:'Portra 400', code:'KP400' },
+    { id:'kodak-gold', name:'Gold 200', code:'KG200' },
+    { id:'fuji-superia', name:'Superia', code:'FS400' },
+    { id:'fuji-velvia', name:'Velvia 50', code:'FV050' },
+    { id:'cinestill', name:'CineStill', code:'CS800' },
+    { id:'ilford', name:'Ilford 黑白', code:'IL-BW' },
+    { id:'polaroid', name:'Polaroid', code:'PLRD' }
+  ],
+  trend: [
+    { id:'none', name:'原始', code:'ORIG' },
+    { id:'moody-teal', name:'青橘電影', code:'TEAL' },
+    { id:'warm-cream', name:'奶油暖調', code:'CREAM' },
+    { id:'cold-blue', name:'冷藍極簡', code:'COLD' },
+    { id:'vintage-fade', name:'復古褪色', code:'FADE' },
+    { id:'japan-tone', name:'日系清新', code:'JPN' },
+    { id:'korean-soft', name:'韓系柔光', code:'KOR' },
+    { id:'dark-mood', name:'暗調氛圍', code:'DARK' },
+    { id:'sunset-glow', name:'夕陽金光', code:'SUN' }
+  ]
+};
+
+const sliderMeta = {
+  exposure:    { label:'曝光', min:-100, max:100, def:0 },
+  brightness:  { label:'亮度', min:-100, max:100, def:0 },
+  contrast:    { label:'對比', min:-100, max:100, def:0 },
+  highlights:  { label:'高光', min:-100, max:100, def:0 },
+  shadows:     { label:'陰影', min:-100, max:100, def:0 },
+  temperature: { label:'色溫', min:-100, max:100, def:0 },
+  tint:        { label:'色調', min:-100, max:100, def:0 },
+  saturation:  { label:'飽和度', min:-100, max:100, def:0 },
+  grain:       { label:'顆粒', min:0,    max:100, def:0 },
+  vignette:    { label:'暈影', min:0,    max:100, def:0 },
+  sharpen:     { label:'銳化', min:0,    max:100, def:0 },
+  blur:        { label:'模糊', min:0,    max:100, def:0 }
+};
+
+// ============================================================
+// DOM
+// ============================================================
+const canvas = document.getElementById('photoCanvas');
+const ctx = canvas.getContext('2d', { willReadFrequently: true });
+const fileInput = document.getElementById('fileInput');
+const uploadZone = document.getElementById('uploadZone');
+const photoWrap = document.getElementById('photoWrap');
+const topMeta = document.getElementById('topMeta');
+const filterTag = document.getElementById('filterTag');
+const compareBtn = document.getElementById('compareBtn');
+const procDot = document.getElementById('procDot');
+const bigSlider = document.getElementById('bigSlider');
+const bigSliderTitle = document.getElementById('bigSliderTitle');
+const bigSliderValue = document.getElementById('bigSliderValue');
+
+// ============================================================
+// FILE LOAD
+// ============================================================
+uploadZone.addEventListener('click', () => fileInput.click());
+document.getElementById('uploadBtnMain').addEventListener('click', e => {
+  e.stopPropagation();
+  fileInput.click();
+});
+fileInput.addEventListener('change', e => {
+  if (e.target.files[0]) loadImage(e.target.files[0]);
+});
+
+function loadImage(file) {
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      const maxSide = 1400;
+      let w = img.width, h = img.height;
+      if (w > maxSide || h > maxSide) {
+        const s = maxSide / Math.max(w, h);
+        w = Math.round(w * s);
+        h = Math.round(h * s);
+      }
+      canvas.width = w;
+      canvas.height = h;
+      ctx.drawImage(img, 0, 0, w, h);
+      state.image = img;
+      state.originalImageData = ctx.getImageData(0, 0, w, h);
+
+      // 縮圖數據（給濾鏡預覽用）
+      const thumbCanvas = document.createElement('canvas');
+      const tw = 76, th = 76;
+      thumbCanvas.width = tw;
+      thumbCanvas.height = th;
+      const tctx = thumbCanvas.getContext('2d');
+      // center crop
+      const ratio = Math.max(tw / w, th / h);
+      const sw = tw / ratio, sh = th / ratio;
+      const sx = (w - sw) / 2, sy = (h - sh) / 2;
+      tctx.drawImage(canvas, sx, sy, sw, sh, 0, 0, tw, th);
+      state.thumbImageData = tctx.getImageData(0, 0, tw, th);
+
+      uploadZone.style.display = 'none';
+      photoWrap.style.display = 'block';
+      compareBtn.classList.add('visible');
+      topMeta.textContent = `${img.width}×${img.height}`;
+
+      renderFilterThumbs('film');
+      renderFilterThumbs('trend');
+      applyAll();
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ============================================================
+// FILTER THUMBNAILS  (render previews with each filter applied)
+// ============================================================
+function renderFilterThumbs(section) {
+  const container = document.getElementById(section === 'film' ? 'filterScrollFilm' : 'filterScrollTrend');
+  container.innerHTML = '';
+  filterMeta[section].forEach(f => {
+    const card = document.createElement('div');
+    card.className = 'filter-card';
+    if (f.id === state.activeFilter) card.classList.add('active');
+    card.dataset.filter = f.id;
+
+    const thumb = document.createElement('div');
+    thumb.className = 'filter-thumb';
+
+    if (state.thumbImageData) {
+      const tcanvas = document.createElement('canvas');
+      tcanvas.width = 76;
+      tcanvas.height = 76;
+      const tctx = tcanvas.getContext('2d');
+      const filteredData = applyFilterToImageData(state.thumbImageData, f.id, {});
+      tctx.putImageData(filteredData, 0, 0);
+      thumb.appendChild(tcanvas);
+    } else {
+      const ph = document.createElement('div');
+      ph.className = 'filter-thumb-placeholder';
+      ph.textContent = f.code;
+      thumb.appendChild(ph);
+    }
+
+    const name = document.createElement('div');
+    name.className = 'filter-name';
+    name.textContent = f.name;
+
+    card.appendChild(thumb);
+    card.appendChild(name);
+
+    card.addEventListener('click', () => {
+      state.activeFilter = f.id;
+      document.querySelectorAll('.filter-card').forEach(c => c.classList.remove('active'));
+      // 同步兩個區塊裡 id 相同的卡片
+      document.querySelectorAll(`.filter-card[data-filter="${f.id}"]`).forEach(c => c.classList.add('active'));
+      filterTag.textContent = `FILTER · ${f.code === 'ORIG' ? 'NONE' : f.code}`;
+      filterTag.classList.toggle('visible', f.id !== 'none');
       applyAll();
     });
-  });
 
-  // ============ RESET ============
-  document.getElementById('resetAllBtn').addEventListener('click', () => {
-    sliders.forEach(s => {
-      s.value = s.dataset.default;
-      state.adjustments[s.id] = parseInt(s.dataset.default);
-      const v = document.querySelector(`.slider-value[data-for="${s.id}"]`);
-      v.textContent = '0';
-      v.classList.remove('modified');
-    });
-    document.querySelectorAll('.preset').forEach(b => b.classList.remove('active'));
-    document.querySelector('.preset[data-filter="none"]').classList.add('active');
-    state.activeFilter = 'none';
-    state.activeFilterName = 'NONE';
-    metaFilter.textContent = 'FILTER: NONE';
-    applyAll();
+    container.appendChild(card);
   });
+}
 
-  // ============ DOWNLOAD ============
-  document.getElementById('downloadBtn').addEventListener('click', () => {
-    if (!state.image) {
-      alert('請先載入一張照片');
-      return;
+// ============================================================
+// FILTER SECTION TOGGLE
+// ============================================================
+document.querySelectorAll('.filter-section-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-section-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const sec = btn.dataset.fsection;
+    state.activeFilterSection = sec;
+    document.getElementById('filterScrollFilm').style.display = sec === 'film' ? 'flex' : 'none';
+    document.getElementById('filterScrollTrend').style.display = sec === 'trend' ? 'flex' : 'none';
+  });
+});
+
+// ============================================================
+// MAIN TAB SWITCH (filters / adjust)
+// ============================================================
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.getElementById(`tab-${tab}`).classList.add('active');
+  });
+});
+
+// ============================================================
+// ADJUST CATEGORY SWITCH
+// ============================================================
+document.querySelectorAll('.adjust-cat').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.adjust-cat').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const cat = btn.dataset.cat;
+    state.activeAdjustCat = cat;
+    document.querySelectorAll('.adjust-sliders').forEach(s => s.classList.remove('active'));
+    document.querySelector(`.adjust-sliders[data-cat="${cat}"]`).classList.add('active');
+    // 預設選第一個 pill
+    const firstPill = document.querySelector(`.adjust-sliders[data-cat="${cat}"] .pill-slider`);
+    if (firstPill) selectPill(firstPill);
+  });
+});
+
+// ============================================================
+// PILL SLIDER SELECT
+// ============================================================
+function selectPill(pill) {
+  document.querySelectorAll(`.adjust-sliders.active .pill-slider`).forEach(p => p.classList.remove('selected'));
+  pill.classList.add('selected');
+  const sliderId = pill.dataset.slider;
+  state.selectedSlider = sliderId;
+  const meta = sliderMeta[sliderId];
+  bigSliderTitle.textContent = meta.label;
+  bigSlider.min = meta.min;
+  bigSlider.max = meta.max;
+  bigSlider.value = state.adjustments[sliderId];
+  updateBigSliderValue();
+
+  // toggle center tick visibility (only for symmetric sliders)
+  const tick = document.querySelector('.slider-center-tick');
+  tick.style.display = meta.min < 0 ? 'block' : 'none';
+}
+
+document.querySelectorAll('.pill-slider').forEach(pill => {
+  pill.addEventListener('click', () => selectPill(pill));
+});
+
+// ============================================================
+// BIG SLIDER
+// ============================================================
+let sliderDebounce;
+bigSlider.addEventListener('input', () => {
+  const v = parseInt(bigSlider.value);
+  state.adjustments[state.selectedSlider] = v;
+  updateBigSliderValue();
+  updatePillIndicators();
+  clearTimeout(sliderDebounce);
+  sliderDebounce = setTimeout(applyAll, 20);
+});
+
+function updateBigSliderValue() {
+  const v = state.adjustments[state.selectedSlider];
+  bigSliderValue.textContent = v > 0 ? `+${v}` : `${v}`;
+  bigSliderValue.style.color = v !== sliderMeta[state.selectedSlider].def ? 'var(--accent)' : 'var(--ink-mute)';
+}
+
+function updatePillIndicators() {
+  document.querySelectorAll('.pill-slider').forEach(p => {
+    const sid = p.dataset.slider;
+    if (!sid) return;
+    const v = state.adjustments[sid];
+    const def = sliderMeta[sid].def;
+    const valEl = p.querySelector('.pill-val');
+    if (v !== def) {
+      p.classList.add('modified');
+      valEl.textContent = v > 0 ? `+${v}` : `${v}`;
+    } else {
+      p.classList.remove('modified');
+      valEl.textContent = '';
     }
-    const link = document.createElement('a');
-    link.download = `darkroom_${Date.now()}.jpg`;
-    link.href = canvas.toDataURL('image/jpeg', 0.95);
-    link.click();
   });
+}
 
-  // ============ CORE RENDERING ============
-  function applyAll() {
-    if (!state.originalImageData) return;
+// ============================================================
+// COMPARE (long-press to show original)
+// ============================================================
+let pressTimer;
+function startHold() {
+  if (!state.image) return;
+  state.showOriginal = true;
+  compareBtn.classList.add('holding');
+  ctx.putImageData(state.originalImageData, 0, 0);
+}
+function endHold() {
+  if (!state.showOriginal) return;
+  state.showOriginal = false;
+  compareBtn.classList.remove('holding');
+  applyAll();
+}
+compareBtn.addEventListener('pointerdown', startHold);
+compareBtn.addEventListener('pointerup', endHold);
+compareBtn.addEventListener('pointerleave', endHold);
+compareBtn.addEventListener('pointercancel', endHold);
 
-    processing.classList.add('show');
+// ============================================================
+// TOP BAR ACTIONS
+// ============================================================
+const modal = document.getElementById('modal');
+document.getElementById('moreBtn').addEventListener('click', () => modal.classList.add('show'));
+document.getElementById('modalClose').addEventListener('click', () => modal.classList.remove('show'));
+modal.addEventListener('click', e => {
+  if (e.target === modal) modal.classList.remove('show');
+});
+document.getElementById('modalLoad').addEventListener('click', () => {
+  modal.classList.remove('show');
+  fileInput.click();
+});
+document.getElementById('modalReset').addEventListener('click', () => {
+  modal.classList.remove('show');
+  resetAll();
+});
 
-    // 用 requestAnimationFrame 避免卡頓
-    requestAnimationFrame(() => {
-      // 從原始資料複製一份
-      const src = state.originalImageData;
-      const out = ctx.createImageData(src.width, src.height);
-      const sd = src.data;
-      const od = out.data;
-      const len = sd.length;
+document.getElementById('resetBtn').addEventListener('click', resetAll);
 
-      // 預先計算的調整參數
-      const a = state.adjustments;
-      const preset = filterPresets[state.activeFilter] || filterPresets['none'];
-      const extras = preset.extras || {};
+function resetAll() {
+  Object.keys(state.adjustments).forEach(k => {
+    state.adjustments[k] = sliderMeta[k].def;
+  });
+  state.activeFilter = 'none';
+  document.querySelectorAll('.filter-card').forEach(c => {
+    c.classList.toggle('active', c.dataset.filter === 'none');
+  });
+  filterTag.classList.remove('visible');
+  bigSlider.value = state.adjustments[state.selectedSlider];
+  updateBigSliderValue();
+  updatePillIndicators();
+  applyAll();
+  showToast('已重置');
+}
 
-      // 合併:user 調整 + 濾鏡偏移
-      const brightness = a.brightness + (extras.exposure || 0) * 0.6;
-      const contrastVal = a.contrast + (extras.contrast || 0);
-      const contrastF = (contrastVal + 100) / 100;     // 0~2
-      const exposureF = Math.pow(2, a.exposure / 100);
-      const saturationF = 1 + (a.saturation + (extras.saturation || 0)) / 100;
-      const warmth = a.temperature + (extras.warmth || 0);
-      const tintVal = a.tint;
-      const fade = (extras.fade || 0) / 100;
-      const shadows = a.shadows / 100;
-      const highlights = a.highlights / 100;
-
-      const isBW = preset.curve === 'bw';
-      const w = src.width, h = src.height;
-
-      // ---- 主像素迴圈 ----
-      for (let i = 0; i < len; i += 4) {
-        let r = sd[i], g = sd[i+1], b = sd[i+2];
-
-        // 曝光
-        r *= exposureF; g *= exposureF; b *= exposureF;
-
-        // 亮度
-        r += brightness; g += brightness; b += brightness;
-
-        // 對比 (圍繞 128)
-        r = (r - 128) * contrastF + 128;
-        g = (g - 128) * contrastF + 128;
-        b = (b - 128) * contrastF + 128;
-
-        // 色溫 (warm = +R/-B)
-        r += warmth * 0.4;
-        b -= warmth * 0.4;
-
-        // 色調 (tint = +G/-G→紫)
-        g += tintVal * 0.3;
-        r -= tintVal * 0.15;
-        b -= tintVal * 0.15;
-
-        // 陰影 / 高光 (依亮度權重)
-        const lum = (r * 0.299 + g * 0.587 + b * 0.114) / 255;
-        const shadowMask = Math.pow(1 - lum, 2);  // 暗部權重
-        const highlightMask = Math.pow(lum, 2);   // 亮部權重
-        r += shadows * 50 * shadowMask + highlights * 50 * highlightMask;
-        g += shadows * 50 * shadowMask + highlights * 50 * highlightMask;
-        b += shadows * 50 * shadowMask + highlights * 50 * highlightMask;
-
-        // 飽和度
-        const gray = r * 0.299 + g * 0.587 + b * 0.114;
-        r = gray + (r - gray) * saturationF;
-        g = gray + (g - gray) * saturationF;
-        b = gray + (b - gray) * saturationF;
-
-        // 濾鏡:陰影/中間/高光 三段色偏
-        if (preset.r && state.activeFilter !== 'none') {
-          const shadowW = Math.max(0, 1 - lum * 2);
-          const midW = 1 - Math.abs(lum - 0.5) * 2;
-          const highW = Math.max(0, lum * 2 - 1);
-          r += preset.r[0] * shadowW + preset.r[1] * midW + preset.r[2] * highW;
-          g += preset.g[0] * shadowW + preset.g[1] * midW + preset.g[2] * highW;
-          b += preset.b[0] * shadowW + preset.b[1] * midW + preset.b[2] * highW;
-        }
-
-        // 黑白轉換
-        if (isBW) {
-          const v = r * 0.299 + g * 0.587 + b * 0.114;
-          r = g = b = v;
-        }
-
-        // 褪色效果 (向中灰拉)
-        if (fade > 0) {
-          r = r * (1 - fade) + 128 * fade;
-          g = g * (1 - fade) + 128 * fade;
-          b = b * (1 - fade) + 128 * fade;
-        }
-
-        // 曲線:電影感壓陰影
-        if (preset.curve === 'cinema') {
-          r = r < 60 ? r * 0.85 + 8 : r;
-          g = g < 60 ? g * 0.85 + 8 : g;
-          b = b < 60 ? b * 0.85 + 8 : b;
-        } else if (preset.curve === 'punchy') {
-          r = (r - 128) * 1.12 + 128;
-          g = (g - 128) * 1.12 + 128;
-          b = (b - 128) * 1.12 + 128;
-        } else if (preset.curve === 'soft') {
-          r = r * 0.92 + 18;
-          g = g * 0.92 + 18;
-          b = b * 0.92 + 18;
-        } else if (preset.curve === 'film') {
-          // S 型曲線
-          r = filmCurve(r); g = filmCurve(g); b = filmCurve(b);
-        } else if (preset.curve === 'fade') {
-          r = r * 0.85 + 28;
-          g = g * 0.85 + 28;
-          b = b * 0.85 + 28;
-        }
-
-        od[i]   = clamp(r);
-        od[i+1] = clamp(g);
-        od[i+2] = clamp(b);
-        od[i+3] = sd[i+3];
-      }
-
-      ctx.putImageData(out, 0, 0);
-
-      // ---- 後處理:暈影 ----
-      if (a.vignette > 0) {
-        const strength = a.vignette / 100;
-        const grd = ctx.createRadialGradient(w/2, h/2, Math.min(w,h)*0.3, w/2, h/2, Math.max(w,h)*0.75);
-        grd.addColorStop(0, 'rgba(0,0,0,0)');
-        grd.addColorStop(1, `rgba(0,0,0,${strength * 0.85})`);
-        ctx.fillStyle = grd;
-        ctx.fillRect(0, 0, w, h);
-      }
-
-      // ---- 後處理:顆粒 ----
-      if (a.grain > 0) {
-        applyGrain(a.grain);
-      }
-
-      // ---- 後處理:CSS filter for blur/sharpen ----
-      const cssFilters = [];
-      if (a.blur > 0) cssFilters.push(`blur(${a.blur / 25}px)`);
-      if (a.sharpen > 0) cssFilters.push(`contrast(${1 + a.sharpen/300}) saturate(${1 + a.sharpen/400})`);
-      canvas.style.filter = cssFilters.join(' ');
-
-      processing.classList.remove('show');
-    });
+document.getElementById('shareBtn').addEventListener('click', () => {
+  if (!state.image) {
+    showToast('請先載入照片');
+    return;
   }
+  const link = document.createElement('a');
+  link.download = `darkroom_${Date.now()}.jpg`;
+  link.href = canvas.toDataURL('image/jpeg', 0.95);
+  link.click();
+  showToast('已儲存到下載');
+});
 
-  function filmCurve(v) {
-    // 簡化 S 曲線
-    const n = v / 255;
-    const curved = n < 0.5
-      ? 2 * n * n
-      : 1 - Math.pow(-2 * n + 2, 2) / 2;
-    return curved * 255;
-  }
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1600);
+}
 
-  function applyGrain(amount) {
-    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const d = imgData.data;
-    const intensity = amount * 0.6;
-    for (let i = 0; i < d.length; i += 4) {
-      const noise = (Math.random() - 0.5) * intensity;
-      d[i]   = clamp(d[i]   + noise);
-      d[i+1] = clamp(d[i+1] + noise);
-      d[i+2] = clamp(d[i+2] + noise);
+// ============================================================
+// CORE: APPLY FILTER + ADJUSTMENTS
+// ============================================================
+function applyAll() {
+  if (!state.originalImageData || state.showOriginal) return;
+  procDot.classList.add('show');
+  requestAnimationFrame(() => {
+    const out = applyFilterToImageData(
+      state.originalImageData,
+      state.activeFilter,
+      state.adjustments
+    );
+    ctx.putImageData(out, 0, 0);
+
+    // 暈影
+    if (state.adjustments.vignette > 0) {
+      const w = canvas.width, h = canvas.height;
+      const strength = state.adjustments.vignette / 100;
+      const grd = ctx.createRadialGradient(w/2, h/2, Math.min(w,h)*0.3, w/2, h/2, Math.max(w,h)*0.75);
+      grd.addColorStop(0, 'rgba(0,0,0,0)');
+      grd.addColorStop(1, `rgba(0,0,0,${strength * 0.85})`);
+      ctx.fillStyle = grd;
+      ctx.fillRect(0, 0, w, h);
     }
-    ctx.putImageData(imgData, 0, 0);
-  }
 
-  function clamp(v) {
-    return v < 0 ? 0 : v > 255 ? 255 : v;
+    // 顆粒
+    if (state.adjustments.grain > 0) {
+      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const d = imgData.data;
+      const intensity = state.adjustments.grain * 0.6;
+      for (let i = 0; i < d.length; i += 4) {
+        const noise = (Math.random() - 0.5) * intensity;
+        d[i] = clamp(d[i] + noise);
+        d[i+1] = clamp(d[i+1] + noise);
+        d[i+2] = clamp(d[i+2] + noise);
+      }
+      ctx.putImageData(imgData, 0, 0);
+    }
+
+    // CSS濾鏡 for blur/sharpen
+    const cssF = [];
+    if (state.adjustments.blur > 0) cssF.push(`blur(${state.adjustments.blur/25}px)`);
+    if (state.adjustments.sharpen > 0) cssF.push(`contrast(${1 + state.adjustments.sharpen/300}) saturate(${1 + state.adjustments.sharpen/400})`);
+    canvas.style.filter = cssF.join(' ');
+
+    procDot.classList.remove('show');
+  });
+}
+
+function applyFilterToImageData(src, filterId, adj) {
+  const out = new ImageData(
+    new Uint8ClampedArray(src.data),
+    src.width,
+    src.height
+  );
+  const sd = src.data, od = out.data;
+  const preset = filterPresets[filterId] || filterPresets['none'];
+  const extras = preset.extras || {};
+
+  const brightness = (adj.brightness || 0) + (extras.exposure || 0) * 0.6;
+  const contrastVal = (adj.contrast || 0) + (extras.contrast || 0);
+  const contrastF = (contrastVal + 100) / 100;
+  const exposureF = Math.pow(2, (adj.exposure || 0) / 100);
+  const saturationF = 1 + ((adj.saturation || 0) + (extras.saturation || 0)) / 100;
+  const warmth = (adj.temperature || 0) + (extras.warmth || 0);
+  const tintVal = adj.tint || 0;
+  const fade = (extras.fade || 0) / 100;
+  const shadows = (adj.shadows || 0) / 100;
+  const highlights = (adj.highlights || 0) / 100;
+  const isBW = preset.curve === 'bw';
+  const len = sd.length;
+  const hasFilter = filterId !== 'none';
+
+  for (let i = 0; i < len; i += 4) {
+    let r = sd[i], g = sd[i+1], b = sd[i+2];
+
+    r *= exposureF; g *= exposureF; b *= exposureF;
+    r += brightness; g += brightness; b += brightness;
+    r = (r - 128) * contrastF + 128;
+    g = (g - 128) * contrastF + 128;
+    b = (b - 128) * contrastF + 128;
+    r += warmth * 0.4;
+    b -= warmth * 0.4;
+    g += tintVal * 0.3;
+    r -= tintVal * 0.15;
+    b -= tintVal * 0.15;
+
+    const lum = (r * 0.299 + g * 0.587 + b * 0.114) / 255;
+    const shadowMask = Math.pow(1 - lum, 2);
+    const highlightMask = Math.pow(lum, 2);
+    r += shadows * 50 * shadowMask + highlights * 50 * highlightMask;
+    g += shadows * 50 * shadowMask + highlights * 50 * highlightMask;
+    b += shadows * 50 * shadowMask + highlights * 50 * highlightMask;
+
+    const gray = r * 0.299 + g * 0.587 + b * 0.114;
+    r = gray + (r - gray) * saturationF;
+    g = gray + (g - gray) * saturationF;
+    b = gray + (b - gray) * saturationF;
+
+    if (hasFilter && preset.r) {
+      const sw = Math.max(0, 1 - lum * 2);
+      const mw = 1 - Math.abs(lum - 0.5) * 2;
+      const hw = Math.max(0, lum * 2 - 1);
+      r += preset.r[0]*sw + preset.r[1]*mw + preset.r[2]*hw;
+      g += preset.g[0]*sw + preset.g[1]*mw + preset.g[2]*hw;
+      b += preset.b[0]*sw + preset.b[1]*mw + preset.b[2]*hw;
+    }
+
+    if (isBW) {
+      const v = r * 0.299 + g * 0.587 + b * 0.114;
+      r = g = b = v;
+    }
+
+    if (fade > 0) {
+      r = r * (1 - fade) + 128 * fade;
+      g = g * (1 - fade) + 128 * fade;
+      b = b * (1 - fade) + 128 * fade;
+    }
+
+    if (preset.curve === 'cinema') {
+      if (r < 60) r = r * 0.85 + 8;
+      if (g < 60) g = g * 0.85 + 8;
+      if (b < 60) b = b * 0.85 + 8;
+    } else if (preset.curve === 'punchy') {
+      r = (r - 128) * 1.12 + 128;
+      g = (g - 128) * 1.12 + 128;
+      b = (b - 128) * 1.12 + 128;
+    } else if (preset.curve === 'soft') {
+      r = r * 0.92 + 18; g = g * 0.92 + 18; b = b * 0.92 + 18;
+    } else if (preset.curve === 'film') {
+      r = filmCurve(r); g = filmCurve(g); b = filmCurve(b);
+    } else if (preset.curve === 'fade') {
+      r = r * 0.85 + 28; g = g * 0.85 + 28; b = b * 0.85 + 28;
+    }
+
+    od[i]   = clamp(r);
+    od[i+1] = clamp(g);
+    od[i+2] = clamp(b);
+    od[i+3] = sd[i+3];
   }
+  return out;
+}
+
+function filmCurve(v) {
+  const n = v / 255;
+  const c = n < 0.5 ? 2*n*n : 1 - Math.pow(-2*n + 2, 2)/2;
+  return c * 255;
+}
+function clamp(v) { return v < 0 ? 0 : v > 255 ? 255 : v; }
+
+// 初始化:預設選 exposure
+selectPill(document.querySelector('.pill-slider[data-slider="exposure"]'));
 </script>
 
 </body>
