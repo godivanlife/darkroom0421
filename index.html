@@ -50,14 +50,14 @@
 
   /* ============ TOP BAR ============ */
   .topbar {
-    height: 52px;
+    height: 46px;
     padding-top: var(--safe-top);
-    height: calc(52px + var(--safe-top));
+    height: calc(46px + var(--safe-top));
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-left: 16px;
-    padding-right: 16px;
+    padding-left: 12px;
+    padding-right: 12px;
     background: var(--bg);
     border-bottom: 1px solid var(--line);
     flex-shrink: 0;
@@ -116,6 +116,7 @@
     background: var(--bg);
     overflow: hidden;
     min-height: 0;
+    padding: 8px;
   }
 
   .photo-wrap {
@@ -127,8 +128,10 @@
 
   #photoCanvas {
     display: block;
-    max-width: 100vw;
+    max-width: 100%;
     max-height: 100%;
+    width: auto;
+    height: auto;
     object-fit: contain;
   }
 
@@ -228,11 +231,9 @@
     transition: transform 0.3s ease;
   }
 
-  /* tab content */
+  /* tab content - 限制底部面板高度,讓照片成為主角 */
   .tab-content {
     display: none;
-    min-height: 180px;
-    max-height: 50vh;
     overflow: hidden;
   }
   .tab-content.active {
@@ -243,7 +244,7 @@
   .filter-section-tabs {
     display: flex;
     gap: 20px;
-    padding: 12px 16px 0;
+    padding: 8px 16px 0;
     border-bottom: 1px solid var(--line);
   }
   .filter-section-tab {
@@ -252,7 +253,7 @@
     color: var(--ink-mute);
     font-size: 13px;
     font-weight: 500;
-    padding: 8px 0;
+    padding: 6px 0;
     cursor: pointer;
     position: relative;
   }
@@ -271,10 +272,10 @@
 
   .filter-scroll {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     overflow-x: auto;
     overflow-y: hidden;
-    padding: 14px 16px 16px;
+    padding: 10px 16px 12px;
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
   }
@@ -283,14 +284,14 @@
   .filter-card {
     flex-shrink: 0;
     scroll-snap-align: start;
-    width: 76px;
+    width: 64px;
     cursor: pointer;
     position: relative;
   }
 
   .filter-thumb {
-    width: 76px;
-    height: 76px;
+    width: 64px;
+    height: 64px;
     border-radius: 10px;
     background: var(--panel);
     border: 2px solid transparent;
@@ -325,11 +326,11 @@
 
   .filter-name {
     text-align: center;
-    font-size: 11px;
-    margin-top: 6px;
+    font-size: 10.5px;
+    margin-top: 4px;
     color: var(--ink-dim);
     line-height: 1.2;
-    height: 26px;
+    height: 22px;
     overflow: hidden;
   }
   .filter-card.active .filter-name {
@@ -339,7 +340,7 @@
 
   /* === FILTER INTENSITY SLIDER === */
   .filter-intensity {
-    padding: 6px 24px 14px;
+    padding: 4px 24px 10px;
     border-top: 1px solid var(--line);
     display: none;
     animation: slideDown 0.2s ease;
@@ -356,7 +357,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 10px 0 12px;
+    margin: 6px 0 8px;
   }
   .intensity-label {
     font-size: 12px;
@@ -421,7 +422,7 @@
   .adjust-category-bar {
     display: flex;
     gap: 0;
-    padding: 12px 16px 0;
+    padding: 8px 16px 0;
     border-bottom: 1px solid var(--line);
     overflow-x: auto;
   }
@@ -433,7 +434,7 @@
     color: var(--ink-mute);
     font-size: 13px;
     font-weight: 500;
-    padding: 8px 14px;
+    padding: 6px 14px;
     cursor: pointer;
     position: relative;
     white-space: nowrap;
@@ -451,7 +452,7 @@
 
   .adjust-sliders {
     display: none;
-    padding: 8px 0 12px;
+    padding: 4px 0 6px;
   }
   .adjust-sliders.active { display: block; }
 
@@ -460,25 +461,25 @@
     display: flex;
     gap: 0;
     overflow-x: auto;
-    padding: 8px 16px 4px;
+    padding: 4px 16px;
     -webkit-overflow-scrolling: touch;
   }
   .pill-row::-webkit-scrollbar { display: none; }
 
   .pill-slider {
     flex-shrink: 0;
-    width: 70px;
+    width: 64px;
     text-align: center;
     cursor: pointer;
-    padding: 6px 0;
+    padding: 4px 0;
     border-radius: 8px;
   }
   .pill-slider.selected {
     background: var(--panel);
   }
   .pill-slider .pill-icon {
-    width: 36px;
-    height: 36px;
+    width: 30px;
+    height: 30px;
     margin: 0 auto;
     display: flex;
     align-items: center;
@@ -487,37 +488,37 @@
   }
   .pill-slider.selected .pill-icon { color: var(--accent); }
   .pill-slider.modified .pill-icon { color: var(--accent-2); }
-  .pill-slider .pill-icon svg { width: 22px; height: 22px; }
+  .pill-slider .pill-icon svg { width: 20px; height: 20px; }
   .pill-slider .pill-label {
     font-size: 10.5px;
     color: var(--ink-dim);
-    margin-top: 2px;
+    margin-top: 1px;
   }
   .pill-slider.selected .pill-label { color: var(--ink); }
   .pill-slider .pill-val {
     font-family: 'JetBrains Mono', monospace;
     font-size: 9px;
     color: var(--ink-mute);
-    margin-top: 1px;
-    height: 11px;
+    margin-top: 0;
+    height: 10px;
   }
   .pill-slider.modified .pill-val { color: var(--accent-2); }
 
   /* large slider for the currently-selected adjustment */
   .big-slider-area {
-    padding: 14px 24px 12px;
+    padding: 8px 24px 10px;
     border-top: 1px solid var(--line);
-    margin-top: 4px;
+    margin-top: 2px;
   }
 
   .big-slider-head {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 14px;
+    margin-bottom: 8px;
   }
   .big-slider-title {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
     color: var(--ink);
   }
@@ -581,7 +582,7 @@
 
   /* ============ BOTTOM TAB BAR ============ */
   .tabbar {
-    height: 60px;
+    height: 48px;
     background: var(--bg);
     border-top: 1px solid var(--line);
     display: flex;
@@ -598,15 +599,15 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 3px;
+    gap: 2px;
     cursor: pointer;
-    padding: 6px 12px;
+    padding: 4px 12px;
     flex: 1;
     min-width: 0;
   }
-  .tab-btn svg { width: 22px; height: 22px; }
+  .tab-btn svg { width: 20px; height: 20px; }
   .tab-btn span {
-    font-size: 11px;
+    font-size: 10.5px;
     font-weight: 500;
   }
   .tab-btn.active { color: var(--accent); }
@@ -706,6 +707,204 @@
   }
   .modal-btn.danger { color: #ff6b6b; }
   .modal-btn:active { background: var(--line); }
+
+  /* ============ EXPORT SHEET ============ */
+  .export-sheet {
+    width: 100%;
+    background: var(--panel);
+    border-radius: 18px 18px 0 0;
+    padding: 16px 20px calc(20px + var(--safe-bottom));
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+    max-height: 92vh;
+    overflow-y: auto;
+  }
+  .modal-backdrop.show .export-sheet {
+    transform: translateY(0);
+  }
+
+  .export-preview {
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    background: #000;
+    position: relative;
+  }
+  .export-preview img {
+    width: 100%;
+    height: auto;
+    display: block;
+    -webkit-touch-callout: default;  /* 允許長按 */
+    touch-callout: default;
+    user-select: auto;
+    -webkit-user-select: auto;
+    pointer-events: auto;
+  }
+
+  .export-tip {
+    background: rgba(74, 158, 255, 0.1);
+    border: 1px solid rgba(74, 158, 255, 0.3);
+    border-radius: 10px;
+    padding: 12px 14px;
+    margin-bottom: 14px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .export-tip svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    margin-top: 1px;
+    color: var(--accent);
+  }
+  .export-tip-text {
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--ink);
+  }
+  .export-tip-text strong {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .export-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .export-btn {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    background: var(--panel-2);
+    border: none;
+    color: var(--ink);
+    border-radius: 12px;
+    font-size: 14.5px;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+    transition: background 0.15s;
+  }
+  .export-btn:active { background: var(--line); }
+
+  .export-btn.primary {
+    background: var(--accent);
+    color: white;
+  }
+  .export-btn.primary:active { background: #3b8df0; }
+
+  .export-btn svg {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+  }
+  .export-btn-content {
+    flex: 1;
+    min-width: 0;
+  }
+  .export-btn-title {
+    font-size: 14.5px;
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+  .export-btn-desc {
+    font-size: 11.5px;
+    opacity: 0.7;
+    font-weight: 400;
+  }
+
+  .export-close {
+    margin-top: 8px;
+    background: transparent;
+    border: 1px solid var(--line);
+    padding: 12px;
+    color: var(--ink-dim);
+    border-radius: 12px;
+    font-size: 14px;
+    cursor: pointer;
+    width: 100%;
+  }
+
+  /* ============================================================
+     RESPONSIVE - iPad / 平板 / 較寬螢幕
+     避免照片區被等比例撐太大,造成版面失衡
+     策略:限制內容最大寬度並置中,左右留黑邊像專業修圖 App
+     ============================================================ */
+
+  /* iPad 直立 / 較寬手機橫式 (寬度 600px 以上) */
+  @media (min-width: 600px) {
+    .photo-stage {
+      padding: 20px;
+    }
+
+    /* 限制照片最大尺寸,讓周圍留白 */
+    #photoCanvas {
+      max-width: min(100%, 680px);
+      max-height: 100%;
+      border-radius: 4px;
+    }
+
+    /* 上方 bar 微調 */
+    .topbar {
+      padding-left: 24px;
+      padding-right: 24px;
+    }
+
+    /* 底部面板內容置中、限制最大寬度 */
+    .filter-scroll,
+    .pill-row,
+    .filter-section-tabs,
+    .adjust-category-bar,
+    .filter-intensity,
+    .big-slider-area {
+      max-width: 680px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* tabbar 也置中,看起來更平衡 */
+    .tabbar {
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* tab-content max-height 增加一點,避免內容擠壓 */
+    .tab-content {
+      max-height: 42vh;
+    }
+  }
+
+  /* 更寬螢幕 (900px 以上) - 桌面或 iPad 橫式 */
+  @media (min-width: 900px) {
+    .photo-stage {
+      padding: 32px;
+    }
+
+    #photoCanvas {
+      max-width: min(100%, 820px);
+    }
+
+    .tab-content {
+      max-height: 320px;
+    }
+
+    /* 內容區更寬一點 */
+    .filter-scroll,
+    .pill-row,
+    .filter-section-tabs,
+    .adjust-category-bar,
+    .filter-intensity,
+    .big-slider-area {
+      max-width: 760px;
+    }
+  }
 </style>
 </head>
 <body>
@@ -923,6 +1122,32 @@
       <button class="modal-btn" id="modalReset">重置所有調整</button>
       <button class="modal-btn" id="modalClose">取消</button>
     </div>
+  </div>
+</div>
+
+<!-- export sheet -->
+<div class="modal-backdrop" id="exportModal">
+  <div class="export-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">輸出照片</div>
+
+    <!-- 預覽 + 長按提示 -->
+    <div class="export-preview" id="exportPreview" style="display:none;">
+      <img id="exportImage" alt="預覽">
+    </div>
+
+    <div class="export-tip" id="exportTipLongPress" style="display:none;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="0.5" fill="currentColor"/></svg>
+      <div class="export-tip-text">
+        <strong>長按上方照片</strong>，然後選「儲存影像」就能存到相簿。
+      </div>
+    </div>
+
+    <div class="export-actions" id="exportActions">
+      <!-- 由 JS 動態填入 -->
+    </div>
+
+    <button class="export-close" id="exportCloseBtn">取消</button>
   </div>
 </div>
 
@@ -1308,6 +1533,14 @@ function resetAll() {
     state.adjustments[k] = sliderMeta[k].def;
   });
   state.activeFilter = 'none';
+  state.filterIntensity = 1.0;
+
+  // 重設強度滑桿 UI
+  intensitySlider.value = 100;
+  intensitySlider.style.setProperty('--fill', '100%');
+  intensityValue.textContent = '100%';
+  document.getElementById('filterIntensity').classList.remove('visible');
+
   document.querySelectorAll('.filter-card').forEach(c => {
     c.classList.toggle('active', c.dataset.filter === 'none');
   });
@@ -1319,17 +1552,163 @@ function resetAll() {
   showToast('已重置');
 }
 
-document.getElementById('shareBtn').addEventListener('click', () => {
+// ============================================================
+// EXPORT FLOW
+// ============================================================
+const exportModal = document.getElementById('exportModal');
+const exportActions = document.getElementById('exportActions');
+const exportPreview = document.getElementById('exportPreview');
+const exportImage = document.getElementById('exportImage');
+const exportTipLongPress = document.getElementById('exportTipLongPress');
+
+// 偵測使用者環境
+const ua = navigator.userAgent;
+const isIOS = /iPhone|iPad|iPod/.test(ua) && !window.MSStream;
+const isAndroid = /Android/.test(ua);
+const isMobile = isIOS || isAndroid;
+
+document.getElementById('shareBtn').addEventListener('click', async () => {
   if (!state.image) {
     showToast('請先載入照片');
     return;
   }
-  const link = document.createElement('a');
-  link.download = `darkroom_${Date.now()}.jpg`;
-  link.href = canvas.toDataURL('image/jpeg', 0.95);
-  link.click();
-  showToast('已儲存到下載');
+  openExportSheet();
 });
+
+document.getElementById('exportCloseBtn').addEventListener('click', () => {
+  exportModal.classList.remove('show');
+});
+exportModal.addEventListener('click', e => {
+  if (e.target === exportModal) exportModal.classList.remove('show');
+});
+
+async function openExportSheet() {
+  // 把 canvas 轉成 blob 一次,後續多個按鈕共用
+  const blob = await new Promise(resolve => {
+    canvas.toBlob(resolve, 'image/jpeg', 0.95);
+  });
+
+  if (!blob) {
+    showToast('輸出失敗');
+    return;
+  }
+
+  const filename = `darkroom_${Date.now()}.jpg`;
+  const file = new File([blob], filename, { type: 'image/jpeg' });
+  const url = URL.createObjectURL(blob);
+
+  // 顯示預覽圖(讓使用者可以長按存到相簿)
+  exportImage.src = url;
+  exportPreview.style.display = 'block';
+
+  // 清空按鈕區
+  exportActions.innerHTML = '';
+
+  // 偵測 Web Share API 是否支援檔案分享
+  const canShareFiles = navigator.canShare && navigator.canShare({ files: [file] });
+
+  if (isMobile) {
+    exportTipLongPress.style.display = 'flex';
+  } else {
+    exportTipLongPress.style.display = 'none';
+  }
+
+  // === 方案 A: Web Share (iOS / Android 主推) ===
+  if (canShareFiles) {
+    const btn = createExportBtn({
+      primary: true,
+      icon: 'share',
+      title: isIOS ? '分享到相簿 / 其他 App' : '分享或儲存',
+      desc: isIOS ? '會打開系統分享面板,選「儲存影像」即可' : '可選擇儲存到相片或傳送給朋友',
+      onClick: async () => {
+        try {
+          await navigator.share({
+            files: [file],
+            title: 'Darkroom 修圖',
+          });
+          // 不顯示成功 toast,因為使用者可能是取消
+        } catch (err) {
+          if (err.name !== 'AbortError') {
+            showToast('分享失敗,試試其他方式');
+          }
+        }
+      }
+    });
+    exportActions.appendChild(btn);
+  }
+
+  // === 方案 B: iOS 特別流程,提示長按 ===
+  if (isIOS && !canShareFiles) {
+    // 在 iOS 上沒有 Web Share Files 時,長按預覽圖是唯一靠譜的入相簿方式
+    exportTipLongPress.style.display = 'flex';
+  }
+
+  // === 方案 C: 標準下載 (所有平台都有) ===
+  const downloadBtn = createExportBtn({
+    primary: !canShareFiles,
+    icon: 'download',
+    title: '下載到裝置',
+    desc: isIOS ? '存到「檔案」App,可再從那邊存到相簿' : '存到下載資料夾',
+    onClick: () => {
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      showToast('已開始下載');
+    }
+  });
+  exportActions.appendChild(downloadBtn);
+
+  // === 方案 D: 在新分頁打開,讓使用者可以長按 ===
+  if (isMobile) {
+    const openBtn = createExportBtn({
+      icon: 'open',
+      title: '在新分頁打開',
+      desc: '打開後長按圖片即可儲存',
+      onClick: () => {
+        const w = window.open();
+        if (w) {
+          w.document.write(`
+            <html><head><title>Darkroom 輸出</title>
+            <meta name="viewport" content="width=device-width,initial-scale=1">
+            <style>body{margin:0;background:#000;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:8px;}
+            img{max-width:100%;height:auto;display:block;}
+            p{color:#fff;font-family:sans-serif;text-align:center;font-size:14px;margin:12px;}</style>
+            </head><body>
+            <div><img src="${url}"/><p>長按圖片 → 儲存影像</p></div>
+            </body></html>
+          `);
+        }
+      }
+    });
+    exportActions.appendChild(openBtn);
+  }
+
+  exportModal.classList.add('show');
+}
+
+function createExportBtn({ primary, icon, title, desc, onClick }) {
+  const btn = document.createElement('button');
+  btn.className = 'export-btn' + (primary ? ' primary' : '');
+
+  const icons = {
+    share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v13"/><path d="M16 6l-4-4-4 4"/><path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>',
+    download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
+    open: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>',
+  };
+
+  btn.innerHTML = `
+    ${icons[icon] || ''}
+    <div class="export-btn-content">
+      <div class="export-btn-title">${title}</div>
+      <div class="export-btn-desc">${desc}</div>
+    </div>
+  `;
+  btn.addEventListener('click', onClick);
+  return btn;
+}
 
 function showToast(msg) {
   const t = document.getElementById('toast');
