@@ -9,7 +9,7 @@
 <title>Darkroom · 行動修圖</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500&family=Noto+Sans+TC:wght@400;500;700;900&family=Bebas+Neue&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,700;1,900&family=Anton&family=Caveat:wght@400;700&family=Permanent+Marker&family=Shippori+Mincho:wght@400;700;900&family=Sawarabi+Mincho&family=Hina+Mincho&family=Yuji+Syuku&family=Klee+One:wght@400;600&family=Zen+Maru+Gothic:wght@500;700;900&family=Noto+Serif+JP:wght@400;700;900&family=Dancing+Script:wght@500;700&family=Great+Vibes&family=Pacifico&family=Sacramento&family=Allura&family=Kaushan+Script&family=Satisfy&family=Shrikhand&family=Alfa+Slab+One&family=Black+Ops+One&family=Russo+One&family=Archivo+Black&family=Bungee&family=Bungee+Shade&family=Monoton&family=Audiowide&family=Press+Start+2P&family=Rubik+Mono+One&family=DM+Serif+Display:ital@0;1&family=Abril+Fatface&family=Cinzel:wght@700;900&family=Yeseva+One&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #000000;
@@ -832,6 +832,518 @@
   }
 
   /* ============================================================
+     CROP & TEXT TAB
+     ============================================================ */
+
+  /* 裁切 / 文字 共用的二級 tab */
+  .crop-text-tabs {
+    display: flex;
+    gap: 20px;
+    padding: 8px 16px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .crop-text-tab {
+    background: none;
+    border: none;
+    color: var(--ink-mute);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 6px 0;
+    cursor: pointer;
+    position: relative;
+  }
+  .crop-text-tab.active { color: var(--ink); }
+  .crop-text-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0; right: 0;
+    height: 2px;
+    background: var(--accent);
+  }
+
+  .crop-text-section {
+    display: none;
+  }
+  .crop-text-section.active {
+    display: block;
+  }
+
+  /* 裁切比例選擇 */
+  .ratio-row {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 10px 16px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .ratio-row::-webkit-scrollbar { display: none; }
+
+  .ratio-btn {
+    flex-shrink: 0;
+    background: var(--panel-2);
+    border: 1.5px solid transparent;
+    color: var(--ink-dim);
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    min-width: 64px;
+  }
+  .ratio-btn.active {
+    border-color: var(--accent);
+    color: var(--ink);
+    background: rgba(74,158,255,0.1);
+  }
+  .ratio-icon {
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .ratio-icon-box {
+    border: 1.5px solid currentColor;
+    border-radius: 3px;
+  }
+  .ratio-label {
+    font-size: 10px;
+    font-weight: 500;
+    line-height: 1;
+  }
+  .ratio-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 8.5px;
+    color: var(--ink-mute);
+    line-height: 1;
+  }
+  .ratio-btn.active .ratio-sub { color: var(--accent); }
+
+  .crop-actions {
+    display: flex;
+    gap: 8px;
+    padding: 4px 16px 10px;
+  }
+  .crop-action-btn {
+    flex: 1;
+    padding: 9px 8px;
+    background: var(--panel-2);
+    border: none;
+    color: var(--ink);
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .crop-action-btn:active { background: var(--line); }
+  .crop-action-btn svg { width: 14px; height: 14px; }
+  .crop-action-btn.primary {
+    background: var(--accent);
+    color: white;
+  }
+
+  /* 裁切覆蓋層 (放在 photo-wrap 內) */
+  .crop-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    display: none;
+  }
+  .crop-overlay.active { display: block; }
+
+  .crop-mask {
+    position: absolute;
+    background: rgba(0,0,0,0.55);
+    pointer-events: none;
+  }
+
+  .crop-frame {
+    position: absolute;
+    border: 1px solid rgba(255,255,255,0.95);
+    box-shadow: 0 0 0 0.5px rgba(0,0,0,0.4);
+    pointer-events: auto;
+    cursor: move;
+    touch-action: none;
+  }
+
+  /* 三分格線 */
+  .crop-frame::before, .crop-frame::after {
+    content: '';
+    position: absolute;
+    background: rgba(255,255,255,0.35);
+    pointer-events: none;
+  }
+  .crop-frame::before {
+    /* 水平兩條 */
+    left: 0; right: 0;
+    top: 33.333%;
+    height: 1px;
+    box-shadow: 0 33.333% 0 0 rgba(255,255,255,0.35);
+  }
+  .crop-frame::after {
+    /* 垂直兩條 */
+    top: 0; bottom: 0;
+    left: 33.333%;
+    width: 1px;
+    box-shadow: 33.333% 0 0 0 rgba(255,255,255,0.35);
+  }
+
+  .crop-handle {
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    pointer-events: auto;
+    touch-action: none;
+  }
+  .crop-handle::after {
+    content: '';
+    position: absolute;
+    background: #fff;
+  }
+  /* 四個角 */
+  .crop-handle.tl { top: -12px; left: -12px; cursor: nw-resize; }
+  .crop-handle.tr { top: -12px; right: -12px; cursor: ne-resize; }
+  .crop-handle.bl { bottom: -12px; left: -12px; cursor: sw-resize; }
+  .crop-handle.br { bottom: -12px; right: -12px; cursor: se-resize; }
+  .crop-handle.tl::after, .crop-handle.tr::after,
+  .crop-handle.bl::after, .crop-handle.br::after {
+    width: 14px;
+    height: 14px;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    border-radius: 2px;
+  }
+  .crop-handle.tl::after { box-shadow: -1px -1px 0 1px rgba(0,0,0,0.4); }
+  .crop-handle.tr::after { box-shadow:  1px -1px 0 1px rgba(0,0,0,0.4); }
+  .crop-handle.bl::after { box-shadow: -1px  1px 0 1px rgba(0,0,0,0.4); }
+  .crop-handle.br::after { box-shadow:  1px  1px 0 1px rgba(0,0,0,0.4); }
+
+  /* ============ TEXT (字體) ============ */
+  .text-input-row {
+    padding: 10px 16px 6px;
+  }
+  .text-input {
+    width: 100%;
+    background: var(--panel-2);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    padding: 10px 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .text-input:focus { border-color: var(--accent); }
+
+  /* 字體分類 tab */
+  .font-cat-row {
+    display: flex;
+    gap: 6px;
+    padding: 6px 16px 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .font-cat-row::-webkit-scrollbar { display: none; }
+  .font-cat-btn {
+    flex-shrink: 0;
+    background: var(--panel-2);
+    border: 1px solid transparent;
+    color: var(--ink-dim);
+    padding: 5px 12px;
+    border-radius: 14px;
+    font-size: 11.5px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .font-cat-btn.active {
+    background: rgba(74,158,255,0.15);
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .font-row {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 6px 16px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .font-row::-webkit-scrollbar { display: none; }
+
+  .font-card {
+    flex-shrink: 0;
+    width: 76px;
+    height: 76px;
+    background: var(--panel-2);
+    border: 1.5px solid transparent;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    text-align: center;
+  }
+  .font-card.active {
+    border-color: var(--accent);
+    background: rgba(74,158,255,0.08);
+  }
+  .font-preview {
+    font-size: 22px;
+    color: var(--ink);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  /* ============================================================
+     特效字體樣式 - Y2K 鉻金屬、3D 氣球、復古描邊等
+     用 CSS 模擬,套在文字 DOM 元素跟最終 canvas 上
+     ============================================================ */
+
+  /* Y2K 鉻金屬 - 藍灰漸層 + 內外光暈 */
+  .fx-chrome {
+    background: linear-gradient(180deg, #e8f4ff 0%, #7fb8e8 25%, #2a5a8a 50%, #1a3a5a 51%, #5a8ec0 75%, #c8e0f0 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow:
+      0 1px 0 rgba(255,255,255,0.5),
+      0 -1px 0 rgba(0,0,0,0.3),
+      2px 4px 8px rgba(0,30,80,0.4);
+    filter: drop-shadow(0 0 6px rgba(120,200,255,0.5));
+  }
+
+  /* 銀色金屬 - 經典科幻款 */
+  .fx-silver {
+    background: linear-gradient(180deg, #ffffff 0%, #c0c0c0 35%, #6b6b6b 50%, #2a2a2a 51%, #6b6b6b 65%, #d4d4d4 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.5));
+  }
+
+  /* 金色金屬 - 奢華感 */
+  .fx-gold {
+    background: linear-gradient(180deg, #fff5d4 0%, #f4d168 30%, #b8841f 55%, #6a4a10 70%, #b8841f 85%, #f4d168 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+  }
+
+  /* 3D 氣球字 - 粉色 OVO 風 */
+  .fx-bubble-pink {
+    color: #ffb8c8;
+    text-shadow:
+      -1px -1px 0 #ff4d7a,
+      1px -1px 0 #ff4d7a,
+      -1px 1px 0 #ff4d7a,
+      1px 1px 0 #ff4d7a,
+      2px 2px 0 #d62059,
+      3px 3px 0 #d62059,
+      4px 4px 0 #d62059,
+      5px 5px 0 #b51a4a,
+      6px 6px 8px rgba(180,20,70,0.3);
+  }
+
+  /* 3D 立體字 - 紅黑款 */
+  .fx-3d-red {
+    color: #ff3838;
+    text-shadow:
+      2px 2px 0 #000,
+      3px 3px 0 #000,
+      4px 4px 0 #000,
+      5px 5px 0 #000,
+      6px 6px 12px rgba(0,0,0,0.5);
+  }
+
+  /* 復古描邊 - 只有外框 */
+  .fx-outline {
+    color: transparent;
+    -webkit-text-stroke: 2px currentColor;
+  }
+
+  /* 雙色描邊 - 街頭風 */
+  .fx-outline-double {
+    color: #fff;
+    text-shadow:
+      -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000,
+      -4px -4px 0 #ff4d4d, 4px -4px 0 #ff4d4d, -4px 4px 0 #ff4d4d, 4px 4px 0 #ff4d4d;
+  }
+
+  /* 螢光發光 - 賽博龐克 */
+  .fx-neon {
+    color: #fff;
+    text-shadow:
+      0 0 4px #fff,
+      0 0 8px #ff00de,
+      0 0 16px #ff00de,
+      0 0 24px #ff00de,
+      0 0 32px #ff00de;
+  }
+
+  /* 螢光綠 - 駭客風 */
+  .fx-neon-green {
+    color: #d0ffd0;
+    text-shadow:
+      0 0 4px #fff,
+      0 0 8px #00ff88,
+      0 0 16px #00ff88,
+      0 0 24px #00cc66;
+  }
+
+  /* 復古條紋 - 80年代 */
+  .fx-retro-stripe {
+    background: linear-gradient(180deg,
+      #ff006e 0%, #ff006e 20%,
+      #ff9500 20%, #ff9500 40%,
+      #ffd60a 40%, #ffd60a 60%,
+      #06d6a0 60%, #06d6a0 80%,
+      #118ab2 80%, #118ab2 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(2px 2px 0 rgba(0,0,0,0.6));
+  }
+
+  /* 火焰漸層 */
+  .fx-fire {
+    background: linear-gradient(180deg, #fff700 0%, #ff9500 40%, #ff3838 80%, #8b0000 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 8px rgba(255,100,0,0.6));
+  }
+
+  /* 全像彩虹 - Y2K */
+  .fx-holo {
+    background: linear-gradient(135deg, #ff00de 0%, #00d4ff 25%, #00ff88 50%, #ffd60a 75%, #ff00de 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 4px rgba(255,0,222,0.5));
+  }
+
+  /* 字體分組標籤 */
+  .font-card-fx-label {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: rgba(255,200,40,0.95);
+    color: #000;
+    font-size: 8px;
+    font-weight: 700;
+    padding: 1px 3px;
+    border-radius: 3px;
+    line-height: 1;
+  }
+  .font-card { position: relative; }
+  .font-name {
+    font-size: 9.5px;
+    color: var(--ink-dim);
+    line-height: 1.1;
+  }
+  .font-card.active .font-name { color: var(--accent); }
+
+  /* 文字工具列(顏色 + 大小 + 加文字按鈕) */
+  .text-tools {
+    display: flex;
+    gap: 8px;
+    padding: 4px 16px 10px;
+    align-items: center;
+  }
+  .color-swatches {
+    display: flex;
+    gap: 6px;
+    flex: 1;
+  }
+  .color-swatch {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: transform 0.1s;
+  }
+  .color-swatch.active {
+    border-color: var(--accent);
+    transform: scale(1.1);
+  }
+
+  .add-text-btn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+  .add-text-btn svg { width: 14px; height: 14px; }
+
+  /* 文字物件覆蓋層 (覆蓋在 photo-wrap 上) */
+  .text-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .text-obj {
+    position: absolute;
+    pointer-events: auto;
+    cursor: move;
+    user-select: none;
+    -webkit-user-select: none;
+    padding: 4px 8px;
+    white-space: nowrap;
+    touch-action: none;
+    transform-origin: top left;
+  }
+  .text-obj.selected {
+    outline: 1.5px dashed var(--accent);
+    outline-offset: 2px;
+  }
+  .text-obj .text-content {
+    display: inline-block;
+  }
+  .text-delete {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    width: 22px;
+    height: 22px;
+    background: #ff4d4d;
+    color: white;
+    border-radius: 50%;
+    border: 2px solid #000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 13px;
+    line-height: 1;
+    font-weight: 700;
+  }
+  .text-obj.selected .text-delete { display: flex; }
+
+  /* ============================================================
      RESPONSIVE - iPad / 平板 / 較寬螢幕
      避免照片區被等比例撐太大,造成版面失衡
      策略:限制內容最大寬度並置中,左右留黑邊像專業修圖 App
@@ -946,6 +1458,19 @@
 
     <div class="photo-wrap" id="photoWrap">
       <canvas id="photoCanvas"></canvas>
+      <div class="text-overlay" id="textOverlay"></div>
+      <div class="crop-overlay" id="cropOverlay">
+        <div class="crop-mask" id="cropMaskTop"></div>
+        <div class="crop-mask" id="cropMaskBottom"></div>
+        <div class="crop-mask" id="cropMaskLeft"></div>
+        <div class="crop-mask" id="cropMaskRight"></div>
+        <div class="crop-frame" id="cropFrame">
+          <div class="crop-handle tl" data-handle="tl"></div>
+          <div class="crop-handle tr" data-handle="tr"></div>
+          <div class="crop-handle bl" data-handle="bl"></div>
+          <div class="crop-handle br" data-handle="br"></div>
+        </div>
+      </div>
       <div class="filter-tag-overlay" id="filterTag">FILTER: NONE</div>
       <button class="compare-btn" id="compareBtn" aria-label="長按對比原圖">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 2v20"/><path d="M2 12h20"/></svg>
@@ -1093,6 +1618,95 @@
       </div>
     </div>
 
+    <!-- ===== CROP & TEXT TAB ===== -->
+    <div class="tab-content" id="tab-crop">
+      <div class="crop-text-tabs">
+        <button class="crop-text-tab active" data-ct="crop">裁切</button>
+        <button class="crop-text-tab" data-ct="text">文字</button>
+      </div>
+
+      <!-- 裁切 -->
+      <div class="crop-text-section active" data-ct="crop">
+        <div class="ratio-row">
+          <button class="ratio-btn active" data-ratio="free">
+            <div class="ratio-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 2h2M2 6v2M2 16v2M6 22h2M16 22h2M22 16v2M22 6v2M16 2h2"/></svg></div>
+            <span class="ratio-label">自由</span>
+            <span class="ratio-sub">FREE</span>
+          </button>
+          <button class="ratio-btn" data-ratio="1:1">
+            <div class="ratio-icon"><div class="ratio-icon-box" style="width:22px;height:22px;"></div></div>
+            <span class="ratio-label">方形</span>
+            <span class="ratio-sub">1:1</span>
+          </button>
+          <button class="ratio-btn" data-ratio="4:5">
+            <div class="ratio-icon"><div class="ratio-icon-box" style="width:18px;height:22px;"></div></div>
+            <span class="ratio-label">IG 貼文</span>
+            <span class="ratio-sub">4:5</span>
+          </button>
+          <button class="ratio-btn" data-ratio="9:16">
+            <div class="ratio-icon"><div class="ratio-icon-box" style="width:13px;height:22px;"></div></div>
+            <span class="ratio-label">限動/Reels</span>
+            <span class="ratio-sub">9:16</span>
+          </button>
+          <button class="ratio-btn" data-ratio="3:4">
+            <div class="ratio-icon"><div class="ratio-icon-box" style="width:18px;height:22px;"></div></div>
+            <span class="ratio-label">直式</span>
+            <span class="ratio-sub">3:4</span>
+          </button>
+          <button class="ratio-btn" data-ratio="4:3">
+            <div class="ratio-icon"><div class="ratio-icon-box" style="width:22px;height:17px;"></div></div>
+            <span class="ratio-label">橫式</span>
+            <span class="ratio-sub">4:3</span>
+          </button>
+          <button class="ratio-btn" data-ratio="16:9">
+            <div class="ratio-icon"><div class="ratio-icon-box" style="width:22px;height:13px;"></div></div>
+            <span class="ratio-label">寬螢幕</span>
+            <span class="ratio-sub">16:9</span>
+          </button>
+          <button class="ratio-btn" data-ratio="3:2">
+            <div class="ratio-icon"><div class="ratio-icon-box" style="width:22px;height:15px;"></div></div>
+            <span class="ratio-label">相機</span>
+            <span class="ratio-sub">3:2</span>
+          </button>
+        </div>
+        <div class="crop-actions">
+          <button class="crop-action-btn" id="cropCancelBtn">取消</button>
+          <button class="crop-action-btn primary" id="cropApplyBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            套用裁切
+          </button>
+        </div>
+      </div>
+
+      <!-- 文字 -->
+      <div class="crop-text-section" data-ct="text">
+        <div class="text-input-row">
+          <input type="text" class="text-input" id="textInput" placeholder="輸入文字…" maxlength="40">
+        </div>
+        <div class="font-cat-row" id="fontCatRow">
+          <button class="font-cat-btn active" data-fcat="all">全部</button>
+          <button class="font-cat-btn" data-fcat="effect">✨ 特效</button>
+          <button class="font-cat-btn" data-fcat="script">手寫</button>
+          <button class="font-cat-btn" data-fcat="bold">粗黑體</button>
+          <button class="font-cat-btn" data-fcat="serif">襯線</button>
+          <button class="font-cat-btn" data-fcat="display">標題</button>
+          <button class="font-cat-btn" data-fcat="jp">日系</button>
+        </div>
+        <div class="font-row" id="fontRow">
+          <!-- 由 JS 生成 -->
+        </div>
+        <div class="text-tools">
+          <div class="color-swatches" id="colorSwatches">
+            <!-- 由 JS 生成 -->
+          </div>
+          <button class="add-text-btn" id="addTextBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            加入
+          </button>
+        </div>
+      </div>
+    </div>
+
   </section>
 
   <!-- ============ BOTTOM TAB BAR ============ -->
@@ -1104,6 +1718,10 @@
     <button class="tab-btn" data-tab="adjust">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="9" cy="6" r="2" fill="currentColor"/><circle cx="15" cy="12" r="2" fill="currentColor"/><circle cx="7" cy="18" r="2" fill="currentColor"/></svg>
       <span>調整</span>
+    </button>
+    <button class="tab-btn" data-tab="crop">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/></svg>
+      <span>裁切 / 字</span>
     </button>
   </nav>
 
@@ -1297,6 +1915,13 @@ function loadImage(file) {
       compareBtn.classList.add('visible');
       topMeta.textContent = `${img.width}×${img.height}`;
 
+      // 載入新照片時清掉之前的文字
+      if (state.textObjects) {
+        state.textObjects = [];
+        state.selectedTextId = null;
+        if (typeof renderTextOverlay === 'function') renderTextOverlay();
+      }
+
       renderFilterThumbs('film');
       renderFilterThumbs('trend');
       applyAll();
@@ -1383,7 +2008,7 @@ document.querySelectorAll('.filter-section-tab').forEach(btn => {
 });
 
 // ============================================================
-// MAIN TAB SWITCH (filters / adjust)
+// MAIN TAB SWITCH (filters / adjust / crop)
 // ============================================================
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -1392,6 +2017,17 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     const tab = btn.dataset.tab;
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     document.getElementById(`tab-${tab}`).classList.add('active');
+
+    // 切到「裁切/字」tab 時:看當前子 tab 是哪個
+    if (tab === 'crop') {
+      const activeSubTab = document.querySelector('.crop-text-tab.active');
+      const subTab = activeSubTab ? activeSubTab.dataset.ct : 'crop';
+      if (subTab === 'crop') {
+        enterCropMode();
+      }
+    } else {
+      exitCropMode();
+    }
   });
 });
 
@@ -1548,9 +2184,834 @@ function resetAll() {
   bigSlider.value = state.adjustments[state.selectedSlider];
   updateBigSliderValue();
   updatePillIndicators();
+
+  // 清掉文字
+  if (state.textObjects && state.textObjects.length > 0) {
+    state.textObjects = [];
+    state.selectedTextId = null;
+    if (typeof renderTextOverlay === 'function') renderTextOverlay();
+  }
+
   applyAll();
   showToast('已重置');
 }
+
+// ============================================================
+// CROP / TEXT TAB SWITCHING
+// ============================================================
+document.querySelectorAll('.crop-text-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.crop-text-tab').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const sec = btn.dataset.ct;
+    document.querySelectorAll('.crop-text-section').forEach(s => s.classList.remove('active'));
+    document.querySelector(`.crop-text-section[data-ct="${sec}"]`).classList.add('active');
+
+    if (sec === 'crop') {
+      enterCropMode();
+    } else {
+      exitCropMode();
+    }
+  });
+});
+
+// ============================================================
+// FONT TEMPLATES - 分類: effect (特效), script (手寫), bold (粗黑體),
+//                       serif (襯線優雅), display (標題), jp (日系)
+// ============================================================
+const fontTemplates = [
+  // ====== ✨ 特效字體 (用 CSS class 模擬流行樣式) ======
+  { id:'fx-chrome',       cat:'effect', name:'Y2K 鉻金屬', preview:'Y2K', style:"'Anton', sans-serif",                    weight:400, textTransform:'uppercase', fxClass:'fx-chrome' },
+  { id:'fx-silver',       cat:'effect', name:'銀色金屬',   preview:'Aa',  style:"'Bebas Neue', sans-serif",                weight:400, textTransform:'uppercase', fxClass:'fx-silver' },
+  { id:'fx-gold',         cat:'effect', name:'黃金奢華',   preview:'Au',  style:"'Playfair Display', serif",               weight:900, fxClass:'fx-gold' },
+  { id:'fx-bubble-pink',  cat:'effect', name:'3D 粉氣球',  preview:'OVO', style:"'Anton', sans-serif",                     weight:400, textTransform:'uppercase', fxClass:'fx-bubble-pink' },
+  { id:'fx-3d-red',       cat:'effect', name:'3D 立體',    preview:'3D',  style:"'Archivo Black', sans-serif",             weight:900, textTransform:'uppercase', fxClass:'fx-3d-red' },
+  { id:'fx-outline',      cat:'effect', name:'復古描邊',   preview:'AB',  style:"'Bebas Neue', sans-serif",                weight:400, textTransform:'uppercase', fxClass:'fx-outline' },
+  { id:'fx-outline-double', cat:'effect', name:'雙色描邊', preview:'CD',  style:"'Anton', sans-serif",                     weight:400, textTransform:'uppercase', fxClass:'fx-outline-double' },
+  { id:'fx-neon',         cat:'effect', name:'霓虹粉',     preview:'88',  style:"'Audiowide', sans-serif",                 weight:400, fxClass:'fx-neon' },
+  { id:'fx-neon-green',   cat:'effect', name:'駭客綠',     preview:'01',  style:"'Press Start 2P', monospace",             weight:400, fxClass:'fx-neon-green' },
+  { id:'fx-retro-stripe', cat:'effect', name:'80s 條紋',   preview:'80',  style:"'Bungee', sans-serif",                    weight:400, textTransform:'uppercase', fxClass:'fx-retro-stripe' },
+  { id:'fx-fire',         cat:'effect', name:'火焰漸層',   preview:'🔥',  style:"'Bungee', sans-serif",                    weight:400, textTransform:'uppercase', fxClass:'fx-fire' },
+  { id:'fx-holo',         cat:'effect', name:'全像彩虹',   preview:'Y2K', style:"'Audiowide', sans-serif",                 weight:400, textTransform:'uppercase', fxClass:'fx-holo' },
+
+  // ====== 🖋️ 手寫腳本 (Image 1 風) ======
+  { id:'dancing',         cat:'script', name:'Dancing 流暢', preview:'Aa', style:"'Dancing Script', cursive",              weight:700 },
+  { id:'great-vibes',     cat:'script', name:'Great Vibes', preview:'Aa', style:"'Great Vibes', cursive",                  weight:400 },
+  { id:'pacifico',        cat:'script', name:'Pacifico',    preview:'Aa', style:"'Pacifico', cursive",                     weight:400 },
+  { id:'sacramento',      cat:'script', name:'Sacramento',  preview:'Aa', style:"'Sacramento', cursive",                   weight:400 },
+  { id:'allura',          cat:'script', name:'Allura 優雅', preview:'Aa', style:"'Allura', cursive",                       weight:400 },
+  { id:'kaushan',         cat:'script', name:'Kaushan 筆刷', preview:'Aa', style:"'Kaushan Script', cursive",              weight:400 },
+  { id:'satisfy',         cat:'script', name:'Satisfy',     preview:'Aa', style:"'Satisfy', cursive",                      weight:400 },
+  { id:'caveat',          cat:'script', name:'Caveat',      preview:'Aa', style:"'Caveat', cursive",                       weight:700 },
+  { id:'marker',          cat:'script', name:'馬克筆',      preview:'Aa', style:"'Permanent Marker', cursive",             weight:400 },
+
+  // ====== 🔲 粗黑體 / 復古運動 (Image 2 風) ======
+  { id:'bebas',           cat:'bold',   name:'Bebas Neue',  preview:'Aa', style:"'Bebas Neue', sans-serif",                weight:400, letterSpacing:'0.04em', textTransform:'uppercase' },
+  { id:'anton',           cat:'bold',   name:'Anton 極窄', preview:'A',  style:"'Anton', sans-serif",                     weight:400, letterSpacing:'0.02em', textTransform:'uppercase' },
+  { id:'archivo-black',   cat:'bold',   name:'Archivo 黑', preview:'Aa', style:"'Archivo Black', sans-serif",              weight:900, textTransform:'uppercase' },
+  { id:'russo',           cat:'bold',   name:'Russo One',   preview:'Aa', style:"'Russo One', sans-serif",                 weight:400, textTransform:'uppercase' },
+  { id:'shrikhand',       cat:'bold',   name:'Shrikhand',   preview:'Aa', style:"'Shrikhand', cursive",                    weight:400 },
+  { id:'alfa-slab',       cat:'bold',   name:'Alfa Slab',   preview:'Aa', style:"'Alfa Slab One', serif",                  weight:400 },
+  { id:'black-ops',       cat:'bold',   name:'Black Ops',   preview:'Aa', style:"'Black Ops One', sans-serif",             weight:400, textTransform:'uppercase' },
+  { id:'inter-black',     cat:'bold',   name:'Inter Black', preview:'Aa', style:"'Inter', sans-serif",                     weight:900 },
+
+  // ====== ✍️ 襯線優雅 (Image 5 Work Hard 風) ======
+  { id:'playfair',        cat:'serif',  name:'Playfair 重', preview:'Aa', style:"'Playfair Display', serif",               weight:900 },
+  { id:'playfair-i',      cat:'serif',  name:'Playfair 斜', preview:'Aa', style:"'Playfair Display', serif",               weight:900, fontStyle:'italic' },
+  { id:'dm-serif',        cat:'serif',  name:'DM Serif',    preview:'Aa', style:"'DM Serif Display', serif",               weight:400 },
+  { id:'dm-serif-i',      cat:'serif',  name:'DM Serif 斜', preview:'Aa', style:"'DM Serif Display', serif",               weight:400, fontStyle:'italic' },
+  { id:'abril',           cat:'serif',  name:'Abril Fatface', preview:'Aa', style:"'Abril Fatface', serif",                weight:400 },
+  { id:'cinzel',          cat:'serif',  name:'Cinzel 古典', preview:'AB', style:"'Cinzel', serif",                         weight:900, textTransform:'uppercase' },
+  { id:'yeseva',          cat:'serif',  name:'Yeseva One',  preview:'Aa', style:"'Yeseva One', serif",                     weight:400 },
+
+  // ====== 🎮 標題 / 復古遊戲 ======
+  { id:'bungee',          cat:'display', name:'Bungee',     preview:'AB', style:"'Bungee', sans-serif",                    weight:400, textTransform:'uppercase' },
+  { id:'bungee-shade',    cat:'display', name:'Bungee 陰影', preview:'AB', style:"'Bungee Shade', sans-serif",             weight:400, textTransform:'uppercase' },
+  { id:'monoton',         cat:'display', name:'Monoton 線', preview:'AB', style:"'Monoton', sans-serif",                   weight:400, textTransform:'uppercase' },
+  { id:'audiowide',       cat:'display', name:'Audiowide',  preview:'Aa', style:"'Audiowide', sans-serif",                 weight:400 },
+  { id:'press-start',     cat:'display', name:'8-bit',      preview:'8b', style:"'Press Start 2P', monospace",             weight:400 },
+  { id:'rubik-mono',      cat:'display', name:'Rubik Mono', preview:'Aa', style:"'Rubik Mono One', sans-serif",            weight:400 },
+
+  // ====== 🇯🇵 日系 ======
+  { id:'shippori',        cat:'jp',     name:'明朝 重',     preview:'明', style:"'Shippori Mincho', serif",                weight:900 },
+  { id:'shippori-r',      cat:'jp',     name:'明朝 細',     preview:'雅', style:"'Shippori Mincho', serif",                weight:400 },
+  { id:'sawarabi',        cat:'jp',     name:'清雅明朝',     preview:'静', style:"'Sawarabi Mincho', serif",                weight:400 },
+  { id:'hina',            cat:'jp',     name:'雛 明朝',     preview:'夢', style:"'Hina Mincho', serif",                    weight:400 },
+  { id:'yuji',            cat:'jp',     name:'游字 書寫',   preview:'手', style:"'Yuji Syuku', serif",                     weight:400 },
+  { id:'klee',            cat:'jp',     name:'手寫 鋼筆',   preview:'楷', style:"'Klee One', cursive",                     weight:600 },
+  { id:'zen-maru',        cat:'jp',     name:'圓體',        preview:'丸', style:"'Zen Maru Gothic', sans-serif",           weight:900 },
+  { id:'noto-serif',      cat:'jp',     name:'明朝 雜誌',   preview:'美', style:"'Noto Serif JP', serif",                  weight:900 }
+];
+
+// 當前選中的字體分類
+state.fontCategory = 'all';
+
+
+const textColors = ['#ffffff', '#000000', '#ff4d4d', '#ffd54a', '#4a9eff', '#7ad06d', '#ff9d6c', '#c084fc'];
+
+// 渲染字體選擇 (依分類過濾)
+function renderFonts() {
+  const row = document.getElementById('fontRow');
+  row.innerHTML = '';
+
+  // 過濾
+  const cat = state.fontCategory || 'all';
+  const list = cat === 'all' ? fontTemplates : fontTemplates.filter(f => f.cat === cat);
+
+  list.forEach((f) => {
+    const card = document.createElement('div');
+    card.className = 'font-card' + (f.id === state.selectedFontId ? ' active' : '');
+    card.dataset.fontId = f.id;
+
+    const preview = document.createElement('div');
+    preview.className = 'font-preview';
+    preview.textContent = f.preview;
+    preview.style.fontFamily = f.style;
+    preview.style.fontWeight = f.weight;
+    if (f.fontStyle) preview.style.fontStyle = f.fontStyle;
+    if (f.textTransform) preview.style.textTransform = f.textTransform;
+
+    // 套用特效 class (Y2K 鉻金屬、3D 氣球字等)
+    if (f.fxClass) {
+      preview.classList.add(f.fxClass);
+      preview.style.fontSize = '18px';
+      // FX 角標
+      const fxBadge = document.createElement('div');
+      fxBadge.className = 'font-card-fx-label';
+      fxBadge.textContent = 'FX';
+      card.appendChild(fxBadge);
+    }
+
+    const name = document.createElement('div');
+    name.className = 'font-name';
+    name.textContent = f.name;
+
+    card.appendChild(preview);
+    card.appendChild(name);
+
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.font-card').forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+      state.selectedFontId = f.id;
+    });
+
+    row.appendChild(card);
+  });
+}
+
+// 字體分類切換
+document.querySelectorAll('.font-cat-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.font-cat-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.fontCategory = btn.dataset.fcat;
+    renderFonts();
+    // 把字體列捲回最左
+    document.getElementById('fontRow').scrollLeft = 0;
+  });
+});
+
+// 渲染顏色色票
+function renderColors() {
+  const row = document.getElementById('colorSwatches');
+  row.innerHTML = '';
+  textColors.forEach((color, idx) => {
+    const s = document.createElement('div');
+    s.className = 'color-swatch' + (idx === 0 ? ' active' : '');
+    s.style.background = color;
+    if (color === '#ffffff') s.style.border = '2px solid #555';
+    s.dataset.color = color;
+    s.addEventListener('click', () => {
+      document.querySelectorAll('.color-swatch').forEach(x => x.classList.remove('active'));
+      s.classList.add('active');
+      state.selectedColor = color;
+    });
+    row.appendChild(s);
+  });
+}
+
+state.selectedFontId = 'bebas';
+state.selectedColor = '#ffffff';
+state.textObjects = [];  // 紀錄所有加在照片上的文字
+state.selectedTextId = null;
+renderFonts();
+renderColors();
+
+// 加入文字按鈕
+document.getElementById('addTextBtn').addEventListener('click', () => {
+  if (!state.image) {
+    showToast('請先載入照片');
+    return;
+  }
+  const input = document.getElementById('textInput');
+  const text = input.value.trim();
+  if (!text) {
+    showToast('請先輸入文字');
+    input.focus();
+    return;
+  }
+  addTextToCanvas(text, state.selectedFontId, state.selectedColor);
+  input.value = '';
+});
+
+function addTextToCanvas(text, fontId, color) {
+  const font = fontTemplates.find(f => f.id === fontId);
+  if (!font) return;
+
+  const id = 'txt_' + Date.now();
+  // 預設大小:根據 canvas 短邊的 8%
+  const baseSize = Math.round(Math.min(canvas.width, canvas.height) * 0.08);
+
+  const obj = {
+    id,
+    text,
+    font,
+    color,
+    // 相對於 canvas 的座標(0~1),這樣縮放也不會偏
+    xPct: 0.5,
+    yPct: 0.5,
+    fontSize: baseSize,
+    rotation: 0
+  };
+  state.textObjects.push(obj);
+  state.selectedTextId = id;
+  renderTextOverlay();
+  showToast('已加入文字,可拖曳移動');
+}
+
+// 把文字物件畫到覆蓋層(DOM 形式,讓使用者拖)
+function renderTextOverlay() {
+  const overlay = document.getElementById('textOverlay');
+  overlay.innerHTML = '';
+
+  if (!state.image) return;
+
+  // 取得 canvas 在頁面上的實際尺寸
+  const canvasRect = canvas.getBoundingClientRect();
+  const wrapRect = photoWrap.getBoundingClientRect();
+  const offsetX = canvasRect.left - wrapRect.left;
+  const offsetY = canvasRect.top - wrapRect.top;
+
+  // 計算實際渲染倍率
+  const scale = canvasRect.width / canvas.width;
+
+  state.textObjects.forEach(obj => {
+    const el = document.createElement('div');
+    el.className = 'text-obj' + (obj.id === state.selectedTextId ? ' selected' : '');
+    el.dataset.id = obj.id;
+    el.style.left = (offsetX + obj.xPct * canvasRect.width) + 'px';
+    el.style.top = (offsetY + obj.yPct * canvasRect.height) + 'px';
+    el.style.fontFamily = obj.font.style;
+    el.style.fontWeight = obj.font.weight;
+    el.style.fontSize = (obj.fontSize * scale) + 'px';
+    el.style.transform = `translate(-50%,-50%) rotate(${obj.rotation}deg)`;
+    if (obj.font.fontStyle) el.style.fontStyle = obj.font.fontStyle;
+    if (obj.font.textTransform) el.style.textTransform = obj.font.textTransform;
+    if (obj.font.letterSpacing) el.style.letterSpacing = obj.font.letterSpacing;
+
+    // 套用特效 class 或一般顏色
+    if (obj.font.fxClass) {
+      el.classList.add(obj.font.fxClass);
+    } else {
+      el.style.color = obj.color;
+      el.style.textShadow = '0 1px 3px rgba(0,0,0,0.3)';
+    }
+
+    const content = document.createElement('span');
+    content.className = 'text-content';
+    content.textContent = obj.text;
+    el.appendChild(content);
+
+    // 刪除按鈕
+    const del = document.createElement('div');
+    del.className = 'text-delete';
+    del.textContent = '×';
+    del.addEventListener('pointerdown', e => {
+      e.stopPropagation();
+      state.textObjects = state.textObjects.filter(o => o.id !== obj.id);
+      if (state.selectedTextId === obj.id) state.selectedTextId = null;
+      renderTextOverlay();
+    });
+    el.appendChild(del);
+
+    // 拖曳邏輯
+    let dragStartX = 0, dragStartY = 0;
+    let objStartX = 0, objStartY = 0;
+    let dragging = false;
+    // 雙指縮放
+    let initialPinchDistance = 0;
+    let initialFontSize = 0;
+    let activePointers = new Map();
+
+    el.addEventListener('pointerdown', e => {
+      e.stopPropagation();
+      state.selectedTextId = obj.id;
+      // 更新所有元素的 selected
+      document.querySelectorAll('.text-obj').forEach(x => x.classList.remove('selected'));
+      el.classList.add('selected');
+
+      activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      el.setPointerCapture(e.pointerId);
+
+      if (activePointers.size === 1) {
+        dragging = true;
+        dragStartX = e.clientX;
+        dragStartY = e.clientY;
+        objStartX = obj.xPct;
+        objStartY = obj.yPct;
+      } else if (activePointers.size === 2) {
+        dragging = false;
+        const points = [...activePointers.values()];
+        initialPinchDistance = Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y);
+        initialFontSize = obj.fontSize;
+      }
+    });
+
+    el.addEventListener('pointermove', e => {
+      if (!activePointers.has(e.pointerId)) return;
+      activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+      if (activePointers.size === 1 && dragging) {
+        const dx = e.clientX - dragStartX;
+        const dy = e.clientY - dragStartY;
+        const rect = canvas.getBoundingClientRect();
+        obj.xPct = Math.max(0, Math.min(1, objStartX + dx / rect.width));
+        obj.yPct = Math.max(0, Math.min(1, objStartY + dy / rect.height));
+        el.style.left = (offsetX + obj.xPct * rect.width) + 'px';
+        el.style.top = (offsetY + obj.yPct * rect.height) + 'px';
+      } else if (activePointers.size === 2) {
+        const points = [...activePointers.values()];
+        const dist = Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y);
+        const scaleFactor = dist / initialPinchDistance;
+        obj.fontSize = Math.max(12, Math.min(400, initialFontSize * scaleFactor));
+        const sc = canvas.getBoundingClientRect().width / canvas.width;
+        el.style.fontSize = (obj.fontSize * sc) + 'px';
+      }
+    });
+
+    const endPointer = e => {
+      activePointers.delete(e.pointerId);
+      if (activePointers.size < 2) dragging = activePointers.size === 1;
+    };
+    el.addEventListener('pointerup', endPointer);
+    el.addEventListener('pointercancel', endPointer);
+
+    overlay.appendChild(el);
+  });
+}
+
+// 把文字烘焙到 canvas (輸出時用)
+function bakeTextToCanvas(targetCanvas, targetCtx) {
+  state.textObjects.forEach(obj => {
+    targetCtx.save();
+    const x = obj.xPct * targetCanvas.width;
+    const y = obj.yPct * targetCanvas.height;
+    targetCtx.translate(x, y);
+    targetCtx.rotate(obj.rotation * Math.PI / 180);
+
+    let fontStr = '';
+    if (obj.font.fontStyle === 'italic') fontStr += 'italic ';
+    fontStr += `${obj.font.weight} ${obj.fontSize}px ${obj.font.style}`;
+    targetCtx.font = fontStr;
+    targetCtx.textAlign = 'center';
+    targetCtx.textBaseline = 'middle';
+
+    let displayText = obj.text;
+    if (obj.font.textTransform === 'uppercase') displayText = displayText.toUpperCase();
+
+    if (targetCtx.letterSpacing !== undefined && obj.font.letterSpacing) {
+      targetCtx.letterSpacing = obj.font.letterSpacing;
+    }
+
+    // 套用特效繪製
+    if (obj.font.fxClass) {
+      drawFxText(targetCtx, displayText, obj.font.fxClass, obj.fontSize);
+    } else {
+      // 一般文字 + 陰影
+      targetCtx.shadowColor = 'rgba(0,0,0,0.3)';
+      targetCtx.shadowBlur = 4;
+      targetCtx.shadowOffsetY = obj.fontSize * 0.03;
+      targetCtx.fillStyle = obj.color;
+      targetCtx.fillText(displayText, 0, 0);
+    }
+
+    targetCtx.restore();
+  });
+}
+
+// 在 Canvas 上繪製特效文字 (對應 CSS 的 fx-xxx class)
+function drawFxText(ctx, text, fxClass, fontSize) {
+  const metrics = ctx.measureText(text);
+  const textW = metrics.width;
+  const textH = fontSize;
+
+  switch (fxClass) {
+    case 'fx-chrome': {
+      const grad = ctx.createLinearGradient(0, -textH/2, 0, textH/2);
+      grad.addColorStop(0, '#e8f4ff');
+      grad.addColorStop(0.25, '#7fb8e8');
+      grad.addColorStop(0.5, '#2a5a8a');
+      grad.addColorStop(0.51, '#1a3a5a');
+      grad.addColorStop(0.75, '#5a8ec0');
+      grad.addColorStop(1, '#c8e0f0');
+      ctx.shadowColor = 'rgba(120,200,255,0.5)';
+      ctx.shadowBlur = 6;
+      ctx.fillStyle = grad;
+      ctx.fillText(text, 0, 0);
+      break;
+    }
+    case 'fx-silver': {
+      const grad = ctx.createLinearGradient(0, -textH/2, 0, textH/2);
+      grad.addColorStop(0, '#ffffff');
+      grad.addColorStop(0.35, '#c0c0c0');
+      grad.addColorStop(0.5, '#6b6b6b');
+      grad.addColorStop(0.51, '#2a2a2a');
+      grad.addColorStop(0.65, '#6b6b6b');
+      grad.addColorStop(1, '#d4d4d4');
+      ctx.shadowColor = 'rgba(0,0,0,0.5)';
+      ctx.shadowBlur = 3;
+      ctx.shadowOffsetY = 2;
+      ctx.fillStyle = grad;
+      ctx.fillText(text, 0, 0);
+      break;
+    }
+    case 'fx-gold': {
+      const grad = ctx.createLinearGradient(0, -textH/2, 0, textH/2);
+      grad.addColorStop(0, '#fff5d4');
+      grad.addColorStop(0.3, '#f4d168');
+      grad.addColorStop(0.55, '#b8841f');
+      grad.addColorStop(0.7, '#6a4a10');
+      grad.addColorStop(0.85, '#b8841f');
+      grad.addColorStop(1, '#f4d168');
+      ctx.shadowColor = 'rgba(0,0,0,0.4)';
+      ctx.shadowBlur = 4;
+      ctx.shadowOffsetY = 2;
+      ctx.fillStyle = grad;
+      ctx.fillText(text, 0, 0);
+      break;
+    }
+    case 'fx-bubble-pink': {
+      // 多層描邊堆疊出 3D 氣球效果
+      const offsets = [
+        { x: 6, y: 6, c: '#b51a4a' },
+        { x: 5, y: 5, c: '#d62059' },
+        { x: 4, y: 4, c: '#d62059' },
+        { x: 3, y: 3, c: '#d62059' },
+        { x: 2, y: 2, c: '#d62059' }
+      ];
+      offsets.forEach(o => {
+        ctx.fillStyle = o.c;
+        ctx.fillText(text, o.x, o.y);
+      });
+      // 主體
+      ctx.lineWidth = fontSize * 0.04;
+      ctx.strokeStyle = '#ff4d7a';
+      ctx.strokeText(text, 0, 0);
+      ctx.fillStyle = '#ffb8c8';
+      ctx.fillText(text, 0, 0);
+      break;
+    }
+    case 'fx-3d-red': {
+      // 紅黑 3D
+      for (let i = 6; i >= 2; i--) {
+        ctx.fillStyle = '#000';
+        ctx.fillText(text, i, i);
+      }
+      ctx.fillStyle = '#ff3838';
+      ctx.fillText(text, 0, 0);
+      break;
+    }
+    case 'fx-outline': {
+      ctx.lineWidth = Math.max(2, fontSize * 0.05);
+      ctx.strokeStyle = '#fff';
+      ctx.strokeText(text, 0, 0);
+      break;
+    }
+    case 'fx-outline-double': {
+      // 紅外圈
+      ctx.lineWidth = fontSize * 0.12;
+      ctx.strokeStyle = '#ff4d4d';
+      ctx.strokeText(text, 0, 0);
+      // 黑中圈
+      ctx.lineWidth = fontSize * 0.06;
+      ctx.strokeStyle = '#000';
+      ctx.strokeText(text, 0, 0);
+      // 白字
+      ctx.fillStyle = '#fff';
+      ctx.fillText(text, 0, 0);
+      break;
+    }
+    case 'fx-neon': {
+      ctx.shadowColor = '#ff00de';
+      ctx.shadowBlur = fontSize * 0.6;
+      ctx.fillStyle = '#fff';
+      // 多次繪製增強發光
+      for (let i = 0; i < 4; i++) ctx.fillText(text, 0, 0);
+      ctx.shadowBlur = 0;
+      ctx.fillText(text, 0, 0);
+      break;
+    }
+    case 'fx-neon-green': {
+      ctx.shadowColor = '#00ff88';
+      ctx.shadowBlur = fontSize * 0.6;
+      ctx.fillStyle = '#d0ffd0';
+      for (let i = 0; i < 4; i++) ctx.fillText(text, 0, 0);
+      ctx.shadowBlur = 0;
+      ctx.fillText(text, 0, 0);
+      break;
+    }
+    case 'fx-retro-stripe': {
+      const grad = ctx.createLinearGradient(0, -textH/2, 0, textH/2);
+      grad.addColorStop(0, '#ff006e');
+      grad.addColorStop(0.2, '#ff006e');
+      grad.addColorStop(0.2, '#ff9500');
+      grad.addColorStop(0.4, '#ff9500');
+      grad.addColorStop(0.4, '#ffd60a');
+      grad.addColorStop(0.6, '#ffd60a');
+      grad.addColorStop(0.6, '#06d6a0');
+      grad.addColorStop(0.8, '#06d6a0');
+      grad.addColorStop(0.8, '#118ab2');
+      grad.addColorStop(1, '#118ab2');
+      ctx.shadowColor = 'rgba(0,0,0,0.6)';
+      ctx.shadowBlur = 0;
+      ctx.shadowOffsetX = 2;
+      ctx.shadowOffsetY = 2;
+      ctx.fillStyle = grad;
+      ctx.fillText(text, 0, 0);
+      break;
+    }
+    case 'fx-fire': {
+      const grad = ctx.createLinearGradient(0, -textH/2, 0, textH/2);
+      grad.addColorStop(0, '#fff700');
+      grad.addColorStop(0.4, '#ff9500');
+      grad.addColorStop(0.8, '#ff3838');
+      grad.addColorStop(1, '#8b0000');
+      ctx.shadowColor = 'rgba(255,100,0,0.6)';
+      ctx.shadowBlur = 8;
+      ctx.fillStyle = grad;
+      ctx.fillText(text, 0, 0);
+      break;
+    }
+    case 'fx-holo': {
+      const grad = ctx.createLinearGradient(-textW/2, -textH/2, textW/2, textH/2);
+      grad.addColorStop(0, '#ff00de');
+      grad.addColorStop(0.25, '#00d4ff');
+      grad.addColorStop(0.5, '#00ff88');
+      grad.addColorStop(0.75, '#ffd60a');
+      grad.addColorStop(1, '#ff00de');
+      ctx.shadowColor = 'rgba(255,0,222,0.5)';
+      ctx.shadowBlur = 4;
+      ctx.fillStyle = grad;
+      ctx.fillText(text, 0, 0);
+      break;
+    }
+    default:
+      ctx.fillStyle = '#fff';
+      ctx.fillText(text, 0, 0);
+  }
+}
+
+// 切換 tab 時更新文字疊加
+function refreshTextOverlay() {
+  // 加個小延遲確保 layout 完成
+  requestAnimationFrame(() => renderTextOverlay());
+}
+
+// 視窗變化時重繪覆蓋層
+window.addEventListener('resize', refreshTextOverlay);
+
+// 點空白處取消選取
+document.getElementById('photoStage').addEventListener('pointerdown', e => {
+  if (e.target.id === 'photoStage' || e.target.id === 'photoCanvas' || e.target.id === 'textOverlay') {
+    state.selectedTextId = null;
+    document.querySelectorAll('.text-obj').forEach(x => x.classList.remove('selected'));
+  }
+});
+
+// ============================================================
+// CROP MODE
+// ============================================================
+state.cropMode = false;
+state.cropRatio = 'free';
+state.cropBox = null;  // {x, y, w, h} 相對於 canvas 顯示尺寸的像素
+
+function enterCropMode() {
+  if (!state.image) return;
+  state.cropMode = true;
+  document.getElementById('cropOverlay').classList.add('active');
+  initCropBox();
+}
+
+function exitCropMode() {
+  state.cropMode = false;
+  document.getElementById('cropOverlay').classList.remove('active');
+}
+
+function initCropBox() {
+  const canvasRect = canvas.getBoundingClientRect();
+  const wrapRect = photoWrap.getBoundingClientRect();
+  const offsetX = canvasRect.left - wrapRect.left;
+  const offsetY = canvasRect.top - wrapRect.top;
+  const dispW = canvasRect.width;
+  const dispH = canvasRect.height;
+
+  let boxW, boxH;
+  if (state.cropRatio === 'free') {
+    boxW = dispW * 0.85;
+    boxH = dispH * 0.85;
+  } else {
+    const [rw, rh] = state.cropRatio.split(':').map(Number);
+    const targetRatio = rw / rh;
+    const imgRatio = dispW / dispH;
+    if (imgRatio > targetRatio) {
+      boxH = dispH * 0.9;
+      boxW = boxH * targetRatio;
+    } else {
+      boxW = dispW * 0.9;
+      boxH = boxW / targetRatio;
+    }
+  }
+
+  state.cropBox = {
+    x: offsetX + (dispW - boxW) / 2,
+    y: offsetY + (dispH - boxH) / 2,
+    w: boxW,
+    h: boxH,
+    canvasOffsetX: offsetX,
+    canvasOffsetY: offsetY,
+    canvasW: dispW,
+    canvasH: dispH
+  };
+  renderCropBox();
+}
+
+function renderCropBox() {
+  if (!state.cropBox) return;
+  const f = document.getElementById('cropFrame');
+  const cb = state.cropBox;
+  f.style.left = cb.x + 'px';
+  f.style.top = cb.y + 'px';
+  f.style.width = cb.w + 'px';
+  f.style.height = cb.h + 'px';
+
+  // 更新遮罩
+  const wrapRect = photoWrap.getBoundingClientRect();
+  const W = wrapRect.width, H = wrapRect.height;
+  document.getElementById('cropMaskTop').style.cssText =
+    `left:0; top:0; width:100%; height:${cb.y}px;`;
+  document.getElementById('cropMaskBottom').style.cssText =
+    `left:0; top:${cb.y + cb.h}px; width:100%; height:${H - cb.y - cb.h}px;`;
+  document.getElementById('cropMaskLeft').style.cssText =
+    `left:0; top:${cb.y}px; width:${cb.x}px; height:${cb.h}px;`;
+  document.getElementById('cropMaskRight').style.cssText =
+    `left:${cb.x + cb.w}px; top:${cb.y}px; width:${W - cb.x - cb.w}px; height:${cb.h}px;`;
+}
+
+// 比例按鈕
+document.querySelectorAll('.ratio-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.ratio-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.cropRatio = btn.dataset.ratio;
+    if (state.cropMode) initCropBox();
+  });
+});
+
+// 拖曳裁切框
+const cropFrame = document.getElementById('cropFrame');
+let cropDragMode = null;  // 'move' | 'tl' | 'tr' | 'bl' | 'br'
+let cropDragStart = { x: 0, y: 0, box: null };
+
+cropFrame.addEventListener('pointerdown', e => {
+  const handle = e.target.closest('.crop-handle');
+  cropDragMode = handle ? handle.dataset.handle : 'move';
+  cropDragStart = {
+    x: e.clientX,
+    y: e.clientY,
+    box: { ...state.cropBox }
+  };
+  cropFrame.setPointerCapture(e.pointerId);
+  e.preventDefault();
+});
+
+cropFrame.addEventListener('pointermove', e => {
+  if (!cropDragMode || !state.cropBox) return;
+  const dx = e.clientX - cropDragStart.x;
+  const dy = e.clientY - cropDragStart.y;
+  const cb = state.cropBox;
+  const startBox = cropDragStart.box;
+  const minSize = 50;
+
+  // 邊界限制
+  const minX = startBox.canvasOffsetX;
+  const maxX = startBox.canvasOffsetX + startBox.canvasW;
+  const minY = startBox.canvasOffsetY;
+  const maxY = startBox.canvasOffsetY + startBox.canvasH;
+
+  // 計算比例(如果不是 free)
+  let ratio = null;
+  if (state.cropRatio !== 'free') {
+    const [rw, rh] = state.cropRatio.split(':').map(Number);
+    ratio = rw / rh;
+  }
+
+  if (cropDragMode === 'move') {
+    cb.x = Math.max(minX, Math.min(maxX - cb.w, startBox.x + dx));
+    cb.y = Math.max(minY, Math.min(maxY - cb.h, startBox.y + dy));
+  } else {
+    // 各個角點調整
+    let newX = startBox.x, newY = startBox.y, newW = startBox.w, newH = startBox.h;
+
+    if (cropDragMode.includes('l')) {
+      newX = startBox.x + dx;
+      newW = startBox.w - dx;
+    }
+    if (cropDragMode.includes('r')) {
+      newW = startBox.w + dx;
+    }
+    if (cropDragMode.includes('t')) {
+      newY = startBox.y + dy;
+      newH = startBox.h - dy;
+    }
+    if (cropDragMode.includes('b')) {
+      newH = startBox.h + dy;
+    }
+
+    // 固定比例
+    if (ratio) {
+      if (Math.abs(dx) > Math.abs(dy)) {
+        newH = newW / ratio;
+        if (cropDragMode.includes('t')) newY = startBox.y + startBox.h - newH;
+      } else {
+        newW = newH * ratio;
+        if (cropDragMode.includes('l')) newX = startBox.x + startBox.w - newW;
+      }
+    }
+
+    // 最小尺寸
+    if (newW < minSize || newH < minSize) return;
+    // 邊界
+    if (newX < minX) { newW -= (minX - newX); newX = minX; if (ratio) newH = newW / ratio; }
+    if (newY < minY) { newH -= (minY - newY); newY = minY; if (ratio) newW = newH * ratio; }
+    if (newX + newW > maxX) { newW = maxX - newX; if (ratio) newH = newW / ratio; }
+    if (newY + newH > maxY) { newH = maxY - newY; if (ratio) newW = newH * ratio; }
+
+    cb.x = newX; cb.y = newY; cb.w = newW; cb.h = newH;
+  }
+  renderCropBox();
+});
+
+cropFrame.addEventListener('pointerup', () => { cropDragMode = null; });
+cropFrame.addEventListener('pointercancel', () => { cropDragMode = null; });
+
+// 套用裁切
+document.getElementById('cropApplyBtn').addEventListener('click', () => {
+  if (!state.cropBox || !state.image) return;
+  const cb = state.cropBox;
+  // 從顯示座標換算成原圖座標
+  const scale = canvas.width / cb.canvasW;
+  const srcX = (cb.x - cb.canvasOffsetX) * scale;
+  const srcY = (cb.y - cb.canvasOffsetY) * scale;
+  const srcW = cb.w * scale;
+  const srcH = cb.h * scale;
+
+  // 從目前 canvas (含所有調整濾鏡的成果)裁切
+  const cropped = document.createElement('canvas');
+  cropped.width = Math.round(srcW);
+  cropped.height = Math.round(srcH);
+  const cctx = cropped.getContext('2d');
+  cctx.drawImage(canvas, srcX, srcY, srcW, srcH, 0, 0, cropped.width, cropped.height);
+
+  // 烘焙文字到裁切後的圖
+  if (state.textObjects.length > 0) {
+    // 文字座標需要按照新尺寸映射
+    state.textObjects.forEach(obj => {
+      // 原本 xPct 是相對於原 canvas, 現在要轉成相對於裁切區
+      const origX = obj.xPct * canvas.width;
+      const origY = obj.yPct * canvas.height;
+      const newX = origX - srcX;
+      const newY = origY - srcY;
+      obj.xPct = newX / srcW;
+      obj.yPct = newY / srcH;
+    });
+  }
+
+  // 取代當前 canvas 內容
+  canvas.width = cropped.width;
+  canvas.height = cropped.height;
+  ctx.drawImage(cropped, 0, 0);
+
+  // 重要:更新 originalImageData 為裁切後的版本,讓接下來的調整以此為基準
+  state.originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  topMeta.textContent = `${canvas.width}×${canvas.height}`;
+
+  // 重設縮圖
+  const thumbCanvas = document.createElement('canvas');
+  const tw = 64, th = 64;
+  thumbCanvas.width = tw; thumbCanvas.height = th;
+  const tctx = thumbCanvas.getContext('2d');
+  const ratio = Math.max(tw / canvas.width, th / canvas.height);
+  const sw = tw / ratio, sh = th / ratio;
+  const sx = (canvas.width - sw) / 2, sy = (canvas.height - sh) / 2;
+  tctx.drawImage(canvas, sx, sy, sw, sh, 0, 0, tw, th);
+  state.thumbImageData = tctx.getImageData(0, 0, tw, th);
+
+  exitCropMode();
+  // 重新生成濾鏡縮圖
+  renderFilterThumbs('film');
+  renderFilterThumbs('trend');
+  // 重新渲染文字疊加
+  refreshTextOverlay();
+
+  showToast('已套用裁切');
+});
+
+// 取消裁切
+document.getElementById('cropCancelBtn').addEventListener('click', () => {
+  exitCropMode();
+  // 切回濾鏡 tab
+  document.querySelector('.tab-btn[data-tab="filters"]').click();
+});
 
 // ============================================================
 // EXPORT FLOW
@@ -1583,9 +3044,20 @@ exportModal.addEventListener('click', e => {
 });
 
 async function openExportSheet() {
-  // 把 canvas 轉成 blob 一次,後續多個按鈕共用
+  // 建立一個臨時 canvas:包含目前濾鏡結果 + 烘焙文字
+  const finalCanvas = document.createElement('canvas');
+  finalCanvas.width = canvas.width;
+  finalCanvas.height = canvas.height;
+  const fctx = finalCanvas.getContext('2d');
+  fctx.drawImage(canvas, 0, 0);
+  // 烘焙文字
+  if (state.textObjects && state.textObjects.length > 0) {
+    bakeTextToCanvas(finalCanvas, fctx);
+  }
+
+  // 把臨時 canvas 轉成 blob
   const blob = await new Promise(resolve => {
-    canvas.toBlob(resolve, 'image/jpeg', 0.95);
+    finalCanvas.toBlob(resolve, 'image/jpeg', 0.95);
   });
 
   if (!blob) {
@@ -1764,6 +3236,11 @@ function applyAll() {
     canvas.style.filter = cssF.join(' ');
 
     procDot.classList.remove('show');
+
+    // 重繪文字疊加(canvas 尺寸可能因 layout 微調)
+    if (state.textObjects && state.textObjects.length > 0) {
+      requestAnimationFrame(() => renderTextOverlay());
+    }
   });
 }
 
