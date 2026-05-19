@@ -120,10 +120,19 @@
   }
 
   .photo-wrap {
-    max-width: 100%;
-    max-height: 100%;
     position: relative;
     display: none;
+    /* 包緊 canvas 尺寸,不要撐滿父層,
+       這樣 text overlay 的座標 0~1 就跟 canvas 完全對齊 */
+    line-height: 0;
+    font-size: 0;
+    width: fit-content;
+    height: fit-content;
+    max-width: 100%;
+    max-height: 100%;
+  }
+  .photo-wrap[style*="block"] {
+    display: inline-block !important;
   }
 
   #photoCanvas {
@@ -1167,10 +1176,11 @@
       6px 6px 12px rgba(0,0,0,0.5);
   }
 
-  /* 復古描邊 - 只有外框 */
+  /* 復古描邊 - 只有外框 (描邊色用使用者選的顏色) */
   .fx-outline {
     color: transparent;
-    -webkit-text-stroke: 2px currentColor;
+    -webkit-text-stroke: 2.5px #ffffff;
+    text-stroke: 2.5px #ffffff;
   }
 
   /* 雙色描邊 - 街頭風 */
@@ -1296,6 +1306,157 @@
     flex-shrink: 0;
   }
   .add-text-btn svg { width: 14px; height: 14px; }
+
+  /* 字級滑桿 */
+  .text-size-row {
+    padding: 0 16px 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .text-size-icon {
+    display: flex;
+    align-items: baseline;
+    gap: 2px;
+    color: var(--ink-dim);
+    flex-shrink: 0;
+  }
+  .text-size-icon .small { font-size: 11px; }
+  .text-size-icon .big { font-size: 17px; font-weight: 700; }
+  .text-size-slider-wrap {
+    flex: 1;
+    position: relative;
+    height: 24px;
+    display: flex;
+    align-items: center;
+  }
+  input[type=range].text-size-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 2px;
+    outline: none;
+    margin: 0;
+    background: linear-gradient(to right, var(--accent) 0%, var(--accent) var(--fill, 25%), var(--line) var(--fill, 25%), var(--line) 100%);
+  }
+  input[type=range].text-size-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    background: var(--ink);
+    cursor: pointer;
+    border-radius: 50%;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  }
+  input[type=range].text-size-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    background: var(--ink);
+    cursor: pointer;
+    border-radius: 50%;
+    border: none;
+  }
+  .text-size-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent);
+    min-width: 32px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .text-size-label {
+    font-size: 10.5px;
+    color: var(--ink-mute);
+    margin-top: 2px;
+    text-align: center;
+    letter-spacing: 0.05em;
+  }
+  .text-size-label .editing { color: var(--accent); }
+
+  /* 字寬 / 字高 (獨立縮放) */
+  .text-stretch-row {
+    padding: 2px 16px 10px;
+    display: flex;
+    gap: 14px;
+  }
+  .stretch-item {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+  .stretch-icon {
+    width: 22px;
+    height: 22px;
+    color: var(--ink-dim);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .stretch-icon svg { width: 18px; height: 18px; }
+  .stretch-slider-wrap {
+    flex: 1;
+    position: relative;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+  }
+  .stretch-tick {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 2px;
+    height: 8px;
+    background: var(--ink-mute);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 1;
+    border-radius: 2px;
+  }
+  input[type=range].stretch-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 1.5px;
+    background: var(--line);
+    outline: none;
+    margin: 0;
+    position: relative;
+    z-index: 2;
+  }
+  input[type=range].stretch-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    background: var(--ink);
+    cursor: pointer;
+    border-radius: 50%;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+  }
+  input[type=range].stretch-slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    background: var(--ink);
+    cursor: pointer;
+    border-radius: 50%;
+    border: none;
+  }
+  .stretch-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--ink-dim);
+    min-width: 36px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .stretch-value.modified { color: var(--accent); }
 
   /* 文字物件覆蓋層 (覆蓋在 photo-wrap 上) */
   .text-overlay {
@@ -1703,6 +1864,49 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             加入
           </button>
+        </div>
+
+        <!-- 字級滑桿 -->
+        <div class="text-size-row">
+          <div class="text-size-icon">
+            <span class="small">A</span><span class="big">A</span>
+          </div>
+          <div class="text-size-slider-wrap">
+            <input type="range" class="text-size-slider" id="textSizeSlider" min="12" max="400" value="80" style="--fill: 17%;">
+          </div>
+          <span class="text-size-value" id="textSizeValue">80</span>
+        </div>
+
+        <!-- 字寬 / 字高 (獨立縮放) -->
+        <div class="text-stretch-row">
+          <div class="stretch-item">
+            <div class="stretch-icon" title="字寬">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="12" x2="21" y2="12"/>
+                <polyline points="6 9 3 12 6 15"/>
+                <polyline points="18 9 21 12 18 15"/>
+              </svg>
+            </div>
+            <div class="stretch-slider-wrap">
+              <span class="stretch-tick"></span>
+              <input type="range" class="stretch-slider" id="textWidthSlider" min="50" max="200" value="100">
+            </div>
+            <span class="stretch-value" id="textWidthValue">100%</span>
+          </div>
+          <div class="stretch-item">
+            <div class="stretch-icon" title="字高">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="3" x2="12" y2="21"/>
+                <polyline points="9 6 12 3 15 6"/>
+                <polyline points="9 18 12 21 15 18"/>
+              </svg>
+            </div>
+            <div class="stretch-slider-wrap">
+              <span class="stretch-tick"></span>
+              <input type="range" class="stretch-slider" id="textHeightSlider" min="50" max="200" value="100">
+            </div>
+            <span class="stretch-value" id="textHeightValue">100%</span>
+          </div>
         </div>
       </div>
     </div>
@@ -2399,24 +2603,148 @@ function addTextToCanvas(text, fontId, color) {
   if (!font) return;
 
   const id = 'txt_' + Date.now();
-  // 預設大小:根據 canvas 短邊的 8%
-  const baseSize = Math.round(Math.min(canvas.width, canvas.height) * 0.08);
+  const canvasRect = canvas.getBoundingClientRect();
+  const scale = canvas.width / canvasRect.width;
+  const screenSize = state.textSize || 80;
+  const baseSize = Math.round(screenSize * scale);
 
   const obj = {
     id,
     text,
     font,
     color,
-    // 相對於 canvas 的座標(0~1),這樣縮放也不會偏
     xPct: 0.5,
     yPct: 0.5,
     fontSize: baseSize,
+    scaleX: 1,    // 字寬倍率 (0.5~2)
+    scaleY: 1,    // 字高倍率 (0.5~2)
     rotation: 0
   };
   state.textObjects.push(obj);
   state.selectedTextId = id;
   renderTextOverlay();
+  updateAllTextSliders();
+  updateStretchSlidersUI();
   showToast('已加入文字,可拖曳移動');
+}
+
+// ============================================================
+// TEXT SIZE SLIDER
+// ============================================================
+state.textSize = 80;
+const textSizeSlider = document.getElementById('textSizeSlider');
+const textSizeValue = document.getElementById('textSizeValue');
+
+textSizeSlider.addEventListener('input', () => {
+  const v = parseInt(textSizeSlider.value);
+  const min = parseInt(textSizeSlider.min);
+  const max = parseInt(textSizeSlider.max);
+  const fillPct = ((v - min) / (max - min)) * 100;
+  textSizeSlider.style.setProperty('--fill', fillPct + '%');
+  textSizeValue.textContent = v;
+
+  if (state.selectedTextId) {
+    const obj = state.textObjects.find(o => o.id === state.selectedTextId);
+    if (obj) {
+      const canvasRect = canvas.getBoundingClientRect();
+      const scale = canvas.width / canvasRect.width;
+      obj.fontSize = Math.round(v * scale);
+      const el = document.querySelector(`.text-obj[data-id="${obj.id}"]`);
+      if (el) {
+        el.style.fontSize = v + 'px';
+        // 重新套用 transform (因為 fontSize 變了,scale 還在)
+        applyTextElTransform(el, obj);
+      }
+    }
+  } else {
+    state.textSize = v;
+  }
+});
+
+function updateTextSizeSliderUI() {
+  let screenSize;
+  if (state.selectedTextId) {
+    const obj = state.textObjects.find(o => o.id === state.selectedTextId);
+    if (obj) {
+      const canvasRect = canvas.getBoundingClientRect();
+      const scale = canvas.width / canvasRect.width || 1;
+      screenSize = Math.round(obj.fontSize / scale);
+    } else {
+      screenSize = state.textSize;
+    }
+  } else {
+    screenSize = state.textSize;
+  }
+  screenSize = Math.max(12, Math.min(400, screenSize));
+  textSizeSlider.value = screenSize;
+  const min = parseInt(textSizeSlider.min);
+  const max = parseInt(textSizeSlider.max);
+  const fillPct = ((screenSize - min) / (max - min)) * 100;
+  textSizeSlider.style.setProperty('--fill', fillPct + '%');
+  textSizeValue.textContent = screenSize;
+}
+
+// ============================================================
+// 字寬 / 字高 SLIDERS
+// ============================================================
+const textWidthSlider = document.getElementById('textWidthSlider');
+const textHeightSlider = document.getElementById('textHeightSlider');
+const textWidthValue = document.getElementById('textWidthValue');
+const textHeightValue = document.getElementById('textHeightValue');
+
+function handleStretchInput(slider, valueEl, prop) {
+  slider.addEventListener('input', () => {
+    const v = parseInt(slider.value);
+    valueEl.textContent = v + '%';
+    valueEl.classList.toggle('modified', v !== 100);
+    if (state.selectedTextId) {
+      const obj = state.textObjects.find(o => o.id === state.selectedTextId);
+      if (obj) {
+        obj[prop] = v / 100;
+        const el = document.querySelector(`.text-obj[data-id="${obj.id}"]`);
+        if (el) applyTextElTransform(el, obj);
+      }
+    }
+  });
+}
+handleStretchInput(textWidthSlider, textWidthValue, 'scaleX');
+handleStretchInput(textHeightSlider, textHeightValue, 'scaleY');
+
+// 雙擊滑桿瞬間歸位
+[textWidthSlider, textHeightSlider].forEach(s => {
+  s.addEventListener('dblclick', () => {
+    s.value = 100;
+    s.dispatchEvent(new Event('input'));
+  });
+});
+
+function updateStretchSlidersUI() {
+  let sx = 1, sy = 1;
+  if (state.selectedTextId) {
+    const obj = state.textObjects.find(o => o.id === state.selectedTextId);
+    if (obj) { sx = obj.scaleX || 1; sy = obj.scaleY || 1; }
+  }
+  const wv = Math.round(sx * 100);
+  const hv = Math.round(sy * 100);
+  textWidthSlider.value = wv;
+  textHeightSlider.value = hv;
+  textWidthValue.textContent = wv + '%';
+  textHeightValue.textContent = hv + '%';
+  textWidthValue.classList.toggle('modified', wv !== 100);
+  textHeightValue.classList.toggle('modified', hv !== 100);
+}
+
+// 一次同步所有文字相關滑桿
+function updateAllTextSliders() {
+  updateTextSizeSliderUI();
+  updateStretchSlidersUI();
+}
+
+// 為文字 DOM 元素套用變形 (translate + rotate + scale)
+function applyTextElTransform(el, obj) {
+  const sx = obj.scaleX || 1;
+  const sy = obj.scaleY || 1;
+  el.style.transform = `translate(-50%,-50%) rotate(${obj.rotation}deg) scale(${sx}, ${sy})`;
 }
 
 // 把文字物件畫到覆蓋層(DOM 形式,讓使用者拖)
@@ -2426,11 +2754,11 @@ function renderTextOverlay() {
 
   if (!state.image) return;
 
-  // 取得 canvas 在頁面上的實際尺寸
+  // 直接以 canvas 為基準計算座標(避免 photo-wrap 跟 canvas 尺寸差異造成偏移)
   const canvasRect = canvas.getBoundingClientRect();
-  const wrapRect = photoWrap.getBoundingClientRect();
-  const offsetX = canvasRect.left - wrapRect.left;
-  const offsetY = canvasRect.top - wrapRect.top;
+  const overlayRect = overlay.getBoundingClientRect();
+  const offsetX = canvasRect.left - overlayRect.left;
+  const offsetY = canvasRect.top - overlayRect.top;
 
   // 計算實際渲染倍率
   const scale = canvasRect.width / canvas.width;
@@ -2444,7 +2772,7 @@ function renderTextOverlay() {
     el.style.fontFamily = obj.font.style;
     el.style.fontWeight = obj.font.weight;
     el.style.fontSize = (obj.fontSize * scale) + 'px';
-    el.style.transform = `translate(-50%,-50%) rotate(${obj.rotation}deg)`;
+    applyTextElTransform(el, obj);
     if (obj.font.fontStyle) el.style.fontStyle = obj.font.fontStyle;
     if (obj.font.textTransform) el.style.textTransform = obj.font.textTransform;
     if (obj.font.letterSpacing) el.style.letterSpacing = obj.font.letterSpacing;
@@ -2452,6 +2780,10 @@ function renderTextOverlay() {
     // 套用特效 class 或一般顏色
     if (obj.font.fxClass) {
       el.classList.add(obj.font.fxClass);
+      // fx-outline 只有描邊,讓使用者選的顏色變成描邊色
+      if (obj.font.fxClass === 'fx-outline') {
+        el.style.webkitTextStroke = `2.5px ${obj.color}`;
+      }
     } else {
       el.style.color = obj.color;
       el.style.textShadow = '0 1px 3px rgba(0,0,0,0.3)';
@@ -2471,6 +2803,7 @@ function renderTextOverlay() {
       state.textObjects = state.textObjects.filter(o => o.id !== obj.id);
       if (state.selectedTextId === obj.id) state.selectedTextId = null;
       renderTextOverlay();
+      updateAllTextSliders();
     });
     el.appendChild(del);
 
@@ -2489,6 +2822,8 @@ function renderTextOverlay() {
       // 更新所有元素的 selected
       document.querySelectorAll('.text-obj').forEach(x => x.classList.remove('selected'));
       el.classList.add('selected');
+      // 同步字級滑桿位置
+      updateAllTextSliders();
 
       activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
       el.setPointerCapture(e.pointerId);
@@ -2515,17 +2850,25 @@ function renderTextOverlay() {
         const dx = e.clientX - dragStartX;
         const dy = e.clientY - dragStartY;
         const rect = canvas.getBoundingClientRect();
+        const overlayR = overlay.getBoundingClientRect();
+        const curOffsetX = rect.left - overlayR.left;
+        const curOffsetY = rect.top - overlayR.top;
         obj.xPct = Math.max(0, Math.min(1, objStartX + dx / rect.width));
         obj.yPct = Math.max(0, Math.min(1, objStartY + dy / rect.height));
-        el.style.left = (offsetX + obj.xPct * rect.width) + 'px';
-        el.style.top = (offsetY + obj.yPct * rect.height) + 'px';
+        el.style.left = (curOffsetX + obj.xPct * rect.width) + 'px';
+        el.style.top = (curOffsetY + obj.yPct * rect.height) + 'px';
       } else if (activePointers.size === 2) {
         const points = [...activePointers.values()];
         const dist = Math.hypot(points[0].x - points[1].x, points[0].y - points[1].y);
         const scaleFactor = dist / initialPinchDistance;
-        obj.fontSize = Math.max(12, Math.min(400, initialFontSize * scaleFactor));
         const sc = canvas.getBoundingClientRect().width / canvas.width;
-        el.style.fontSize = (obj.fontSize * sc) + 'px';
+        // 限制螢幕像素 12~400
+        const newScreenSize = (initialFontSize * scaleFactor) / sc;
+        const clamped = Math.max(12, Math.min(400, newScreenSize));
+        obj.fontSize = Math.round(clamped * sc);
+        el.style.fontSize = clamped + 'px';
+        // 同步滑桿
+        updateAllTextSliders();
       }
     });
 
@@ -2548,6 +2891,12 @@ function bakeTextToCanvas(targetCanvas, targetCtx) {
     const y = obj.yPct * targetCanvas.height;
     targetCtx.translate(x, y);
     targetCtx.rotate(obj.rotation * Math.PI / 180);
+    // 套用字寬/字高縮放(分別 X 軸、Y 軸)
+    const sx = obj.scaleX || 1;
+    const sy = obj.scaleY || 1;
+    if (sx !== 1 || sy !== 1) {
+      targetCtx.scale(sx, sy);
+    }
 
     let fontStr = '';
     if (obj.font.fontStyle === 'italic') fontStr += 'italic ';
@@ -2565,7 +2914,7 @@ function bakeTextToCanvas(targetCanvas, targetCtx) {
 
     // 套用特效繪製
     if (obj.font.fxClass) {
-      drawFxText(targetCtx, displayText, obj.font.fxClass, obj.fontSize);
+      drawFxText(targetCtx, displayText, obj.font.fxClass, obj.fontSize, obj.color);
     } else {
       // 一般文字 + 陰影
       targetCtx.shadowColor = 'rgba(0,0,0,0.3)';
@@ -2580,10 +2929,12 @@ function bakeTextToCanvas(targetCanvas, targetCtx) {
 }
 
 // 在 Canvas 上繪製特效文字 (對應 CSS 的 fx-xxx class)
-function drawFxText(ctx, text, fxClass, fontSize) {
+function drawFxText(ctx, text, fxClass, fontSize, userColor) {
   const metrics = ctx.measureText(text);
   const textW = metrics.width;
   const textH = fontSize;
+  // 使用者顏色,預設白
+  const color = userColor || '#ffffff';
 
   switch (fxClass) {
     case 'fx-chrome': {
@@ -2663,7 +3014,8 @@ function drawFxText(ctx, text, fxClass, fontSize) {
     }
     case 'fx-outline': {
       ctx.lineWidth = Math.max(2, fontSize * 0.05);
-      ctx.strokeStyle = '#fff';
+      ctx.strokeStyle = color;
+      ctx.lineJoin = 'round';
       ctx.strokeText(text, 0, 0);
       break;
     }
@@ -2765,6 +3117,7 @@ document.getElementById('photoStage').addEventListener('pointerdown', e => {
   if (e.target.id === 'photoStage' || e.target.id === 'photoCanvas' || e.target.id === 'textOverlay') {
     state.selectedTextId = null;
     document.querySelectorAll('.text-obj').forEach(x => x.classList.remove('selected'));
+    if (typeof updateTextSizeSliderUI === 'function') updateAllTextSliders();
   }
 });
 
